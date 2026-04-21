@@ -4,4 +4,210 @@ info:
   version: 1.0.0
 servers:
   - url: 'http://localhost:8080'
+tags:
+  - name: Collectivités agricoles
+    description: "A - Ouverture et gestion des collectivités agricoles"
+components:
+  parameters:
+    CollectiviteId:
+      name: id
+      in: path
+      description: "ID de la collectivité agricole"
+      required: true
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        example: 1
+  schemas:
+    SpecialiteAgricole:
+      type: string
+      description: "Spécialité agricole de la collectivité"
+      enum:
+        - RIZICULTURE
+        - MARAICHAGE
+        - ELEVAGE
+        - ARBORICULTURE
+        - PECHE
+        - AUTRE
+      example: RIZICULTURE
+    Collectivite:
+      type: object
+      required:
+        - id
+        - numero
+        - nom
+        - ville
+        - specialite
+        - dateCreation
+        - nombreMembres
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: "Identifiant unique de la collectivité"
+          example: 1
+        numero:
+          type: string
+          description: "Numéro d'identification de la collectivité"
+          example: "CA-001"
+        nom:
+          type: string
+          description: "Nom de la collectivité"
+          example: "Collectivité Rizicole d'Ambatondrazaka"
+        ville:
+          type: string
+          description: "Ville où se situe la collectivité"
+          example: "Ambatondrazaka"
+        specialite:
+          $ref: '#/components/schemas/SpecialiteAgricole'
+        dateCreation:
+          type: string
+          format: date
+          description: "Date de création de la collectivité"
+          example: "2020-04-15"
+        nombreMembres:
+          type: integer
+          description: "Nombre de membres dans la collectivité"
+          minimum: 10
+          example: 50
+    CreateCollectivite:
+      type: object
+      required:
+        - nom
+        - ville
+        - specialite
+      properties:
+        nom:
+          type: string
+          description: "Nom de la collectivité"
+          example: "Collectivité Maraîchère de Toamasina"
+        ville:
+          type: string
+          description: "Ville où se situe la collectivité"
+          example: "Toamasina"
+        specialite:
+          $ref: '#/components/schemas/SpecialiteAgricole'
+    ErrorResponse:
+          type: string
+          description: "Message d'erreur en cas de problème lors de la création de la collectivité"
+          example: "Le nom de la collectivité est requis."
 paths:
+  /collectivites:
+    get: 
+      tags:
+        - Collectivités
+      summary: "Lister toutes les collectivités"
+      description: "Retourne ka liste de toutes les collectivités de la fédération"
+      operationId: getCollectivites
+      responses:
+        '200':
+          description: "Liste des collectivités"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collectivite'
+                example:
+                  - id: 1
+                    numero: "CA-001"
+                    nom: "Collectivité Rizicole d'Ambatondrazaka"
+                    ville: "Ambatondrazaka"
+                    specialite: RIZICULTURE
+                    dateCreation: "2020-04-15"
+                    nombreMembres: 50
+                  - id: 2
+                    numero: "CA-002"
+                    nom: "Collectivité Maraîchère de Toamasina"
+                    ville: "Toamasina"
+                    specialite: MARAICHAGE
+                    dateCreation: "2021-06-20"
+                    nombreMembres: 30
+        '500':
+          description: "Erreur interne du serveur"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Collectivités
+      summary: Ouvrir une nouvelle collectivité
+      description: "Crée une nouvelle collectivité agricole. La fédération valide les conditions
+        d'ouverture (au moins 10 membres avec 5 membres ayant6 mois d'ancienneté, postes spécifiques
+        pourvus, autorisation formelle accordée)."
+      operationId: createCollectivite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCollectivite'
+      responses:
+        '201':
+          description: "Collectivité créée avec succès"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collectivite'
+              example:
+                id: 3
+                numero: "CA-003"
+                nom: "Collectivité Arboricole de Fianarantsoa"
+                ville: "Fianarantsoa"
+                specialite: ARBORICULTURE
+                dateCreation: "2022-01-10"
+                nombreMembres: 15
+        '400':
+          description: "Requête invalide - conditions d'ouverture non remplies ou données manquantes"
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "Le nombre de membres doit être d'au moins 10, avec au moins 5 membres ayant au moins 6 mois d'ancienneté."
+        '500':
+          description: "Erreur interne du serveur"
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "Une erreur est survenue lors du traitement de la demande."
+  /collectivites/{CollectiviteId}:
+    get:
+      tags:
+        - Collectivités
+      summary: "Obtenir une collectivité par son ID"
+      description: "Retourne les détails d'une collectivité spécifique en fonction de son ID."
+      operationId: getCollectiviteById
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      responses:
+        '200':
+          description: "Collectivité trouvée"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collectivite'
+              example:
+                id: 1
+                numero: "CA-001"
+                nom: "Collectivité Rizicole d'Ambatondrazaka"
+                ville: "Ambatondrazaka"
+                specialite: RIZICULTURE
+                dateCreation: "2020-04-15"
+                nombreMembres: 50
+        '404':
+          description: "Collectivité non trouvée"
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "Aucune collectivité trouvée avec l'ID spécifié."
+        '500':
+          description: "Erreur interne du serveur"
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "Une erreur est survenue lors du traitement de la demande."
