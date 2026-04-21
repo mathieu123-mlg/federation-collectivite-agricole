@@ -105,58 +105,132 @@ components:
           type: string
           description: "Message d'erreur en cas de problème lors de la création de la collectivité"
           example: "Le nom de la collectivité est requis."
-    Genre:
+
+    TypeCotisation:
       type: string
-      description: "Genre d'un membre"
-      enum:
-        - MASCULIN
-        - FEMININ
-        - AUTRE
-      example: MASCULIN
-    Poste:
+      enum: [MENSUELLE, ANNUELLE, PONCTUELLE]
+      description: "Cotisation périodique (mensuelle/annuelle) ou ponctuelle pour événement spécifique ou imprévu"
+      example: MENSUELLE
+
+    ModePaiement:
       type: string
-      description: "Poste occupé par un membre au sein d'une collectivité"
-      enum:
-        - PRESIDENT
-        - VICE_PRESIDENT
-        - SECRETAIRE
-        - TRESORIER
-        - MEMBRE_CONFIRME
-        - MEMBRE_JUNIOR
-      example: PRESIDENT
-    Membre:
+      enum: [ESPECE, VIREMENT_BANCAIRE, MOBILE_MONEY]
+      description: "Mode de paiement : espèce, virement bancaire ou mobile money"
+      example: MOBILE_MONEY
+
+    Cotisation:
       type: object
       required:
         - id
-        - nom
-        - prenom
-        - dateNaissance
-        - genre
-        - adresse
-        - metier
-        - telephone
-        - email
-        - dateAdhesion
-        - poste
+        - collectivite
+        - membre
+        - montant
+        - dateEncaissement
+        - modePaiement
+        - typeCotisation
       properties:
         id:
           type: integer
-          format: int32
-          description: "Identifiant unique du membre"
+          format: int64
+          description: "Identifiant unique de la cotisation"
+          example: 1
+        collectivite:
+          $ref: '#/components/schemas/Collectivite'
+          description: "Collectivité concernée"
+        membre:
+          $ref: '#/components/schemas/Membre'
+          description: "Membre ayant effectué le paiement"
+        montant:
+          type: integer
+          minimum: 1
+          description: "Montant de la cotisation en MGA"
+          example: 50000
+        dateEncaissement:
+          type: string
+          format: date
+          description: "Date de l'encaissement (trace écrite obligatoire)"
+          example: "2026-04-16"
+        modePaiement:
+          $ref: '#/components/schemas/ModePaiement'
+        typeCotisation:
+          $ref: '#/components/schemas/TypeCotisation'
+
+    CreateCotisation:
+      type: object
+      required:
+        - membreId
+        - montant
+        - modePaiement
+        - typeCotisation
+      properties:
+        membreId:
+          type: integer
+          format: int64
+          description: "ID du membre qui paie la cotisation"
+        montant:
+          type: integer
+          minimum: 1
+        modePaiement:
+          $ref: '#/components/schemas/ModePaiement'
+        typeCotisation:
+          $ref: '#/components/schemas/TypeCotisation'
+
+    CreateReversement:
+      type: object
+      required:
+        - collectiviteId
+        - montant
+        - pourcentageApplied
+      properties:
+        collectiviteId:
+          type: integer
+          format: int64
+        montant:
+          type: integer
+        pourcentageApplied:
+          type: number
+          format: float
+
+    Reversement:
+      type: object
+      required:
+        - id
+        - collectivite
+        - montant
+        - dateReversement
+        - pourcentageApplied
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: "Identifiant unique du reversement"
+        collectivite:
+          $ref: '#/components/schemas/Collectivite'
+          description: "Collectivité qui reverse à la fédération"
+        montant:
+          type: integer
+          description: "Montant reversé en MGA"
+        dateReversement:
+          type: string
+          format: date
+          description: "Date du reversement"
+        pourcentageApplied:
+          type: number
+          format: float
+          description: "Pourcentage des cotisations périodiques reversé à la fédération (valeur à déterminer)"
+
+    Membre:
+      type: object
+      properties:
+        id:
+          type: number
           example: 1
         nom:
           type: string
-          description: "Nom de famille du membre"
-          example: "Rasolo"
         prenom:
           type: string
-          description: "Prénom du membre"
-          example: "Jean"
-        dateNaissance:
+        anniversaire:
           type: string
-          format: date
-          description: "Date de naissance du membre"
-          example: "1985-07-20"
         genre:
           $ref: '#/components/schemas/Genre'
         adresse:
@@ -183,6 +257,7 @@ components:
           example: "2020-01-15"
         poste:
           $ref: '#/components/schemas/Poste'
+          
     CreateMembre:
       type: object
       required:
@@ -226,9 +301,192 @@ components:
           format: int32
           description: Identifiant du membre confirmé parrain (ancienneté > 90 jours requise).
           example: 4
+
+    Genre:
+      type: object
+      enum:
+        - feminin
+        - masculin
+
+    Poste:
+      enum:
+        - president
+        - president_adjoint
+        - treasury
+        - secretary
+        - confirmed_member
+        - junior_member
+
+    Metier:
+      type: object
+      enum:
+        - collecteur
+        - pruducteur
+
+    TypeCompte:
+      type: string
+      enum: [CAISSE, BANCAIRE, MOBILE_MONEY]
+      description: "Type de compte : caisse (unique), bancaire ou mobile money"
+      example: BANCAIRE
+
+    Banque:
+      type: string
+      enum: [BRED, MCB, BMOI, BOA, BGFI, AFG, ACCES_BANQUE, BAOBAB, SIPEM]
+      description: "Nom de la banque pour un compte bancaire"
+
+    ServiceMobileMoney:
+      type: string
+      enum: [ORANGE_MONEY, MVOLA, AIRTEL_MONEY]
+      description: "Service mobile money"
+
+    Compte:
+      type: object
+      required:
+        - id
+        - entite
+        - typeEntite
+        - typeCompte
+        - titulaire
+        - solde
+        - devise
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: "Identifiant unique du compte"
+        entite:
+          type: object
+          required:
+            - id
+            - nom
+          properties:
+            id:
+              type: integer
+              format: int64
+            nom:
+              type: string
+          description: "Collectivité ou fédération propriétaire du compte"
+        typeEntite:
+          type: string
+          enum: [COLLECTIVITE, FEDERATION]
+          description: "Type d'entité propriétaire"
+        typeCompte:
+          $ref: '#/components/schemas/TypeCompte'
+        titulaire:
+          type: string
+          description: "Nom du titulaire du compte"
+        solde:
+          type: integer
+          description: "Solde actuel du compte en MGA à une date donnée"
+          example: 1500000
+        devise:
+          type: string
+          default: "MGA"
+          description: "Devise du compte (Ariary par défaut)"
+        banque:
+          $ref: '#/components/schemas/Banque'
+        numeroCompte:
+          type: string
+          description: "Format BBBBB GGGGG CCCCCCCCCCC KK (23 chiffres)"
+          example: "12345 67890 12345678901 12"
+        serviceMobileMoney:
+          $ref: '#/components/schemas/ServiceMobileMoney'
+        numeroTelephone:
+          type: string
+          description: "Numéro de téléphone unique associé au compte mobile money"
+          example: "0321234567"
+
+    CreateCompte:
+      type: object
+      required:
+        - typeCompte
+        - titulaire
+      properties:
+        typeCompte:
+          $ref: '#/components/schemas/TypeCompte'
+        titulaire:
+          type: string
+          description: "Nom du titulaire du compte"
+        banque:
+          $ref: '#/components/schemas/Banque'
+        numeroCompte:
+          type: string
+          description: "Format BBBBB GGGGG CCCCCCCCCCC KK"
+        serviceMobileMoney:
+          $ref: '#/components/schemas/ServiceMobileMoney'
+        numeroTelephone:
+          type: string
+
+    SoldeResponse:
+      type: object
+      required:
+        - compteId
+        - solde
+        - date
+        - devise
+      properties:
+        compteId:
+          type: integer
+          format: int64
+        solde:
+          type: integer
+          description: "Solde du compte à la date donnée"
+        date:
+          type: string
+          format: date
+          description: "Date à laquelle le solde est consulté"
+        devise:
+          type: string
+          example: "MGA"
+
+    TresorerieResponse:
+      type: object
+      required:
+        - entite
+        - typeEntite
+        - soldeTotal
+        - dateCalcul
+        - comptes
+      properties:
+        entite:
+          type: object
+          properties:
+            id:
+              type: integer
+            nom:
+              type: string
+        typeEntite:
+          type: string
+          enum: [COLLECTIVITE, FEDERATION]
+        soldeTotal:
+          type: integer
+          description: "Somme des soldes de tous les comptes (caisse + bancaires + mobile money)"
+        dateCalcul:
+          type: string
+          format: date
+        comptes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Compte'
+
+    UpdateSoldeRequest:
+      type: object
+      required:
+        - montantVariation
+        - motif
+      properties:
+        montantVariation:
+          type: integer
+          description: "Positif pour ajout (encaissement), négatif pour retrait (dépense)"
+          example: 50000
+        motif:
+          type: string
+          description: "Raison de la variation (ex: cotisation mensuelle, dépense activité)"
+          example: "Cotisation mensuelle membre Dupont"
+
 paths:
   /collectivites:
-    get: 
+    get:
       tags:
         - Collectivités
       summary: "Lister toutes les collectivités"
@@ -345,206 +603,336 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example: "Une erreur est survenue lors du traitement de la demande."
-  /collectivites/{collectiviteId}/membres:
+
+  /collectivites/{collectiviteId}/cotisations:
+    post:
+      tags:
+        - C - Cotisation et paiements
+      summary: "Enregistrer une cotisation"
+      description:
+        Le trésorier de la collectivité garde une trace écrite du montant, 
+        de la date de l'encaissement et du mode de paiement (espèce, virement bancaire ou mobile money).
+      operationId: createCotisation
+      parameters:
+        - name: collectiviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: "ID de la collectivité"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCotisation'
+      responses:
+        '201':
+          description: "Cotisation enregistrée avec succès"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cotisation'
+        '400':
+          description: "Données invalides"
+        '404':
+          description: "Collectivité ou membre non trouvé"
     get:
       tags:
-        - Membres
-      summary: Lister les membres d'une collectivité
-      description: Retourne la liste de tous les membres inscrits dans une collectivité donnée.
-      operationId: getMemberByCollectivite
+        - C - Cotisation et paiements
+      summary: "Lister les cotisations d'une collectivité"
+      description: "Retourne l'historique des encaissements pour une collectivité donnée"
+      operationId: getCotisationsByCollectivite
       parameters:
-        - $ref: '#/components/parameters/CollectiviteId'
+        - name: collectiviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: "Date de début de période"
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: "Date de fin de période"
+        - name: typeCotisation
+          in: query
+          schema:
+            $ref: '#/components/schemas/TypeCotisation'
+          description: "Filtrer par type de cotisation"
       responses:
         '200':
-          description: Liste des membres
+          description: "Liste des cotisations"
           content:
             application/json:
               schema:
                 type: array
-                items: 
-                  $ref: '#/components/schemas/Membre'
-                example: 
-                  -id: 1
-                  nom: "Rakoto"
-                  prenom: "Jean"
-                  dateNaissance: "1990-05-20"
-                  genre: MASCULIN
-                  adresse: "Lot II J 45, Antananarivo"
-                  metier: "Agriculteur"
-                  telephone: "+261341234567"
-                  email: "jean.rakoto@example.com"
-                  dateAdhesion: "2023-01-10"
-                  poste: MEMBRE_CONFIRME
-        '404':
-          description: Collectivité introuvable
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Erreur interne du serveur.
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    post:
-      tags:
-        - Membres
-      summary: Admettre un nouveau membre dans une collectivité
-      description: Admet un nouveau membre au sein de la collectivité. Requiert un parrain
-        membre confirmé avec plus de 90 jours d'ancienneté. Le frais d'adhésion
-        de 50 000 MGA est géré séparément via l'endpoint de cotisation.
-      operationId: admitMember
-      parameters: 
-        - $ref: '#/components/parameters/CollectiviteId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateMembre'
-            example:
-              nom: "Andria"
-              prenom: "Marie"
-              dateNaissance: "1995-08-12"
-              genre: FEMININ
-              adresse: "Rue de la Paix, Fianarantsoa"
-              metier: "Éleveuse"
-              telephone: "+261331234567"
-              email: "marie.andria@example.com"
-              idParrain: 5
-      responses:
-        '201': 
-          description: Membre admis avec succès
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Membre'
-        '400':
-          description: Conditions d'admission non remplies (parrain invalide, données manquantes).
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example: "Le parrain doit être un membre confirmé avec plus de 90 jours d'ancienneté."
-        '404':
-          description: Collectivité introuvable.
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Erreur interne du serveur.
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /collectivites/{collectiviteId}/membres/{membreId}:
+                items:
+                  $ref: '#/components/schemas/Cotisation'
+
+  /collectivites/{collectiviteId}/cotisations/{cotisationId}:
     get:
       tags:
-        - Membres
-      summary: Obtenir un membre par ID
-      description: Retourne les informations détaillées d'un membre dans une collectivité.
-      operationId: getMemberById
+        - C - Cotisation et paiements
+      summary: "Détail d'une cotisation"
+      operationId: getCotisationById
       parameters:
-        - $ref: '#/components/parameters/CollectiviteId'
-        - $ref: '#/components/parameters/MembreId'
+        - name: collectiviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: cotisationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         '200':
-          description: Membre trouvé
+          description: "Détail de la cotisation"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Membre'
+                $ref: '#/components/schemas/Cotisation'
         '404':
-          description: Collectivité/membre introuvable
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Erreur interne du serveur
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: "Cotisation non trouvée"
 
-    delete:
-      tags:
-        - Membres
-      summary: Démissioner/retirer un membre d'une collectivité
-      description: Permet à un membre de démissionner ou d'être retiré d'une collectivité
-        (ex. changement de ville). Le membre reste dans la fédération.
-      operationId: removeMember
-      parameters:
-        - $ref: '#/components/parameters/CollectiviteId'
-        - $ref: '#/components/parameters/MembreId'
-      responses:
-        '200':
-          description: Membre retiré avec succès
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Membre'
-        '404':
-          description: Collectivité/membre introuvable
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Erreur interne du serveur
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /collectivites/{collectiviteId}/membres/{membreId}/transfert:
+  /federation/reversements:
     post:
       tags:
-        - Membres 
-      summary: Transférer un membre vers une autre collectivité
-      description: Permet à un membre de changer de collectivité (ex. changement de ville)
-      operationId: transferMember
-      parameters:
-        - $ref: '#/components/parameters/CollectiviteId'
-        - $ref: '#/components/parameters/MembreId'
+        - C - Cotisation et paiements
+      summary: "Enregistrer un reversement à la fédération"
+      description: |
+        Un pourcentage des cotisations périodiques est reversé à la fédération.
+        La valeur du pourcentage est à déterminer.
+      operationId: createReversement
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - nouvelleCollectiviteId
-              properties:
-                nouvelleCollectiviteId:
-                  type: integer
-                  format: int32
-                  description: ID de la nouvelle collectivité cible.
-                  example: 3
+              $ref: '#/components/schemas/CreateReversement'
       responses:
-        '200':
-          description: Transfert effectué avec succès
-          content: 
+        '201':
+          description: "Reversement enregistré"
+          content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Membre'
+                $ref: '#/components/schemas/Reversement'
+
+  /collectivites/{collectiviteId}/reversements:
+    get:
+      tags:
+        - C - Cotisation et paiements
+      summary: "Historique des reversements d'une collectivité"
+      description: "Liste tous les reversements effectués par une collectivité vers la fédération"
+      operationId: getReversementsByCollectivite
+      parameters:
+        - name: collectiviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: "Liste des reversements"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reversement'
+
+  /collectivites/{collectiviteId}/comptes:
+    post:
+      tags:
+        - D - Situation de trésorerie
+      summary: "Créer un compte pour une collectivité"
+      description: |
+        Une collectivité ne peut avoir qu'un seul compte de type caisse.
+        Elle peut avoir plusieurs comptes bancaires ou plusieurs comptes mobile money.
+        Compte bancaire : nécessite nom titulaire, banque, numéro à 23 chiffres (format BBBBB GGGGG CCCCCCCCCCC KK)
+        Compte mobile money : nécessite nom titulaire, service (Orange Money, Mvola, Airtel Money), numéro téléphone unique
+      operationId: createCompteForCollectivite
+      parameters:
+        - name: collectiviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompte'
+      responses:
+        '201':
+          description: "Compte créé avec succès"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Compte'
         '400':
-          description: Transfert invalide
+          description: "Données invalides ou caisse déjà existante"
+    get:
+      tags:
+        - D - Situation de trésorerie
+      summary: "Lister les comptes d'une collectivité"
+      description: "Retourne la liste des comptes (caisse, bancaires, mobile money) d'une collectivité"
+      operationId: getComptesByCollectivite
+      parameters:
+        - name: collectiviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: typeCompte
+          in: query
+          schema:
+            $ref: '#/components/schemas/TypeCompte'
+          description: "Filtrer par type de compte"
+      responses:
+        '200':
+          description: "Liste des comptes"
           content:
-            text/plain:
+            application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Compte'
+
+  /federation/comptes:
+    post:
+      tags:
+        - D - Situation de trésorerie
+      summary: "Créer un compte pour la fédération"
+      description: |
+        La fédération applique le même principe : une seule caisse et plusieurs comptes bancaires ou mobile money.
+      operationId: createCompteForFederation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompte'
+      responses:
+        '201':
+          description: "Compte fédération créé"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Compte'
+    get:
+      tags:
+        - D - Situation de trésorerie
+      summary: "Lister les comptes de la fédération"
+      operationId: getComptesFederation
+      parameters:
+        - name: typeCompte
+          in: query
+          schema:
+            $ref: '#/components/schemas/TypeCompte'
+      responses:
+        '200':
+          description: "Liste des comptes"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Compte'
+
+  /comptes/{compteId}/solde:
+    get:
+      tags:
+        - D - Situation de trésorerie
+      summary: "Consulter le solde d'un compte à une date donnée"
+      description: "Pour chaque compte (caisse, bancaire, mobile money), retourne le solde à une date donnée. La devise est par défaut l'Ariary (MGA)."
+      operationId: getSoldeCompte
+      parameters:
+        - name: compteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: "Date du solde (par défaut : date courante)"
+      responses:
+        '200':
+          description: "Solde du compte"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SoldeResponse'
         '404':
-          description: Collectivité ou membre introuvable.
+          description: "Compte non trouvé"
+
+  /collectivites/{collectiviteId}/tresorerie:
+    get:
+      tags:
+        - D - Situation de trésorerie
+      summary: "Voir la trésorerie globale d'une collectivité"
+      description: |
+        La collectivité doit être transparente envers ses membres ainsi qu'envers la fédération.
+        Retourne la somme des soldes de tous ses comptes (caisse + bancaires + mobile money).
+      operationId: getTresorerieCollectivite
+      parameters:
+        - name: collectiviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: "Date de calcul de la trésorerie"
+      responses:
+        '200':
+          description: "Trésorerie globale"
           content:
-            text/plain:
+            application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Erreur interne du serveur.
+                $ref: '#/components/schemas/TresorerieResponse'
+
+  /federation/tresorerie:
+    get:
+      tags:
+        - D - Situation de trésorerie
+      summary: "Voir la trésorerie de la fédération"
+      description: "Retourne la somme des soldes de tous les comptes de la fédération"
+      operationId: getTresorerieFederation
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: "Trésorerie fédération"
           content:
-            text/plain:
+            application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/TresorerieResponse'
