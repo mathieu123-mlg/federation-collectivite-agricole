@@ -1,7 +1,10 @@
-CREATE DATABASE agricultural_federation;
-CREATE USER agricultural_federation_manager WITH PASSWORD '123456';
-GRANT CONNECT ON DATABASE agricultural_federation TO agricultural_federation_manager;
-GRANT CREATE ON SCHEMA public TO agricultural_federation_manager;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO agricultural_federation_manager;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO agricultural_federation_manager;
-GRANT ALL PRIVILEGES ON DATABASE agricultural_federation TO agricultural_federation_manager;
+drop database agricultural_federation;
+create database agricultural_federation;
+create user agricultural_federation_manager with password '123456';
+grant connect on database agricultural_federation to agricultural_federation_manager;
+
+grant create, usage on schema public to agricultural_federation_manager;
+alter default privileges in schema public
+    grant select, update, insert, delete on tables to agricultural_federation_manager;
+alter default privileges in schema public
+    grant usage, select, update on sequences to agricultural_federation_manager;
