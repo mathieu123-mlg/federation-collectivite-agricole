@@ -353,91 +353,170 @@ components:
           parrains:
             type: array
             minItems: 2
+            description: Au moins 2 parrains squi sont membres confirmés requis pour l'admission d'un nouveau membre
             items:
               $ref: '#/components/schemas/Parrain'
+    TypeCompte:
+      type: string
+      enum: [CAISSE, BANCAIRE, MOBILE_MONEY]
+      description: "Type de compte : caisse (unique), bancaire ou mobile money"
+      example: BANCAIRE
 
-    StatistiquesMembre:
+    Banque:
+      type: string
+      enum: [BRED, MCB, BMOI, BOA, BGFI, AFG, ACCES_BANQUE, BAOBAB, SIPEM]
+      description: "Nom de la banque pour un compte bancaire"
+
+    ServiceMobileMoney:
+      type: string
+      enum: [ORANGE_MONEY, MVOLA, AIRTEL_MONEY]
+      description: "Service mobile money"
+
+    Compte:
       type: object
       required:
-        - membreId
-        - nom
-        - prenom
-        - tauxAssiduite
-        - montantEncaissement
-        - montantImpayePotentiel
+        - id
+        - entite
+        - typeEntite
+        - typeCompte
+        - titulaire
+        - solde
+        - devise
       properties:
-        membreId:
+        id:
           type: integer
-          format: int32
-          description: "ID du membre"
-          example: 5
-        nom:
+          format: int64
+          description: "Identifiant unique du compte"
+        entite:
+          type: object
+          required:
+            - id
+            - nom
+          properties:
+            id:
+              type: integer
+              format: int64
+            nom:
+              type: string
+          description: "Collectivité ou fédération propriétaire du compte"
+        typeEntite:
           type: string
-          description: "Nom du membre"
-          example: "Rakoto"
-        prenom:
+          enum: [COLLECTIVITE, FEDERATION]
+          description: "Type d'entité propriétaire"
+        typeCompte:
+          $ref: '#/components/schemas/TypeCompte'
+        titulaire:
           type: string
-          description: "Prénom du membre"
-          example: "Jean"
-        tauxAssiduite:
-          type: number
-          format: float
-          description: "Taux d’assiduité sur la période donnée (en pourcentage, de 0 à 100)"
-          minimum: 0
-          maximum: 100
-          example: 85.5
-        montantEncaissement:
+          description: "Nom du titulaire du compte"
+        solde:
           type: integer
-          description: "Montant total encaissé par le membre sur la période (en MGA)"
-          minimum: 0
-          example: 150000
-        montantImpayePotentiel:
+          description: "Solde actuel du compte en MGA à une date donnée"
+          example: 1500000
+        devise:
+          type: string
+          default: "MGA"
+          description: "Devise du compte (Ariary par défaut)"
+        banque:
+          $ref: '#/components/schemas/Banque'
+        numeroCompte:
+          type: string
+          description: "Format BBBBB GGGGG CCCCCCCCCCC KK (23 chiffres)"
+          example: "12345 67890 12345678901 12"
+        serviceMobileMoney:
+          $ref: '#/components/schemas/ServiceMobileMoney'
+        numeroTelephone:
+          type: string
+          description: "Numéro de téléphone unique associé au compte mobile money"
+          example: "0321234567"
+
+    CreateCompte:
+      type: object
+      required:
+        - typeCompte
+        - titulaire
+      properties:
+        typeCompte:
+          $ref: '#/components/schemas/TypeCompte'
+        titulaire:
+          type: string
+          description: "Nom du titulaire du compte"
+        banque:
+          $ref: '#/components/schemas/Banque'
+        numeroCompte:
+          type: string
+          description: "Format BBBBB GGGGG CCCCCCCCCCC KK"
+        serviceMobileMoney:
+          $ref: '#/components/schemas/ServiceMobileMoney'
+        numeroTelephone:
+          type: string
+
+    SoldeResponse:
+      type: object
+      required:
+        - compteId
+        - solde
+        - date
+        - devise
+      properties:
+        compteId:
           type: integer
-          description: "Montant potentiel impayé par le membre sur la période (en MGA)"
-          minimum: 0
+          format: int64
+        solde:
+          type: integer
+          description: "Solde du compte à la date donnée"
+        date:
+          type: string
+          format: date
+          description: "Date à laquelle le solde est consulté"
+        devise:
+          type: string
+          example: "MGA"
+
+    TresorerieResponse:
+      type: object
+      required:
+        - entite
+        - typeEntite
+        - soldeTotal
+        - dateCalcul
+        - comptes
+      properties:
+        entite:
+          type: object
+          properties:
+            id:
+              type: integer
+            nom:
+              type: string
+        typeEntite:
+          type: string
+          enum: [COLLECTIVITE, FEDERATION]
+        soldeTotal:
+          type: integer
+          description: "Somme des soldes de tous les comptes (caisse + bancaires + mobile money)"
+        dateCalcul:
+          type: string
+          format: date
+        comptes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Compte'
+
+    UpdateSoldeRequest:
+      type: object
+      required:
+        - montantVariation
+        - motif
+      properties:
+        montantVariation:
+          type: integer
+          description: "Positif pour ajout (encaissement), négatif pour retrait (dépense)"
           example: 50000
-
-    RapportMensuelCollectivite:
-      type: object
-      required:
-        - collectiviteId
-        - nomCollectivite
-        - mois
-        - annee
-        - nombreMembresActifs
-        - tauxAssiduiteGlobal
-      properties:
-        collectiviteId:
-          type: integer
-          format: int32
-          description: "ID de la collectivité"
-          example: 1
-        nomCollectivite:
+        motif:
           type: string
-          description: "Nom de la collectivité"
-          example: "Collectivité Rizicole d'Ambatondrazaka"
-        mois:
-          type: integer
-          description: "Mois du rapport (1 = janvier, 12 = décembre)"
-          minimum: 1
-          maximum: 12
-          example: 3
-        annee:
-          type: integer
-          description: "Année du rapport"
-          example: 2026
-        nombreMembresActifs:
-          type: integer
-          description: "Nombre de membres actifs (n’ayant pas démissionné) dans la collectivité"
-          minimum: 0
-          example: 45
-        tauxAssiduiteGlobal:
-          type: number
-          format: float
-          description: "Taux d’assiduité global de la collectivité sur le mois (en pourcentage, de 0 à 100)"
-          minimum: 0
-          maximum: 100
-          example: 78.3
+          description: "Raison de la variation (ex: cotisation mensuelle, dépense activité)"
+          example: "Cotisation mensuelle membre Dupont"       
+    
 
 paths:
   /collectivites:
@@ -1095,151 +1174,3 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TresorerieResponse'
-
-  /collectivites/{collectiviteId}/statistiques/membres:
-    get:
-      tags:
-        - G - Statistiques d’une collectivité
-      summary: "Statistiques détaillées des membres actifs d’une collectivité"
-      description: |
-        Pour le président de la collectivité. Retourne pour chaque membre actif (n’ayant pas démissionné) :
-        - Le taux d’assiduité sur une période donnée
-        - Le montant d’encaissement sur une période donnée
-        - Le montant impayé potentiel sur une période donnée
-      operationId: getStatistiquesMembres
-      parameters:
-        - name: collectiviteId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: "ID de la collectivité"
-        - name: dateDebut
-          in: query
-          required: true
-          schema:
-            type: string
-            format: date
-          description: "Date de début de la période (inclusive)"
-          example: "2026-03-01"
-        - name: dateFin
-          in: query
-          required: true
-          schema:
-            type: string
-            format: date
-          description: "Date de fin de la période (inclusive)"
-          example: "2026-03-31"
-      responses:
-        '200':
-          description: "Liste des statistiques par membre actif"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StatistiquesMembre'
-                example:
-                  - membreId: 5
-                    nom: "Rakoto"
-                    prenom: "Jean"
-                    tauxAssiduite: 85.5
-                    montantEncaissement: 150000
-                    montantImpayePotentiel: 50000
-                  - membreId: 12
-                    nom: "Rabe"
-                    prenom: "Marie"
-                    tauxAssiduite: 92.0
-                    montantEncaissement: 200000
-                    montantImpayePotentiel: 0
-        '400':
-          description: "Paramètres invalides (dates manquantes ou incohérentes)"
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example: "Les dates de début et de fin sont requises et doivent être cohérentes."
-        '404':
-          description: "Collectivité non trouvée"
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example: "Aucune collectivité trouvée avec l'ID spécifié."
-        '500':
-          description: "Erreur interne du serveur"
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /collectivites/{collectiviteId}/rapport-mensuel:
-    get:
-      tags:
-        - G - Statistiques d’une collectivité
-      summary: "Rapport mensuel d’une collectivité pour la fédération"
-      description: |
-        Le président de la collectivité doit faire un rapport mensuel à la fédération contenant :
-        - Le taux d’assiduité global de la collectivité
-        - Le nombre de membres actifs (n’ayant pas démissionné)
-      operationId: getRapportMensuelCollectivite
-      parameters:
-        - name: collectiviteId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: "ID de la collectivité"
-        - name: mois
-          in: query
-          required: true
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 12
-          description: "Mois du rapport (1 = janvier, 12 = décembre)"
-          example: 3
-        - name: annee
-          in: query
-          required: true
-          schema:
-            type: integer
-            minimum: 2000
-          description: "Année du rapport"
-          example: 2026
-      responses:
-        '200':
-          description: "Rapport mensuel de la collectivité"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RapportMensuelCollectivite'
-              example:
-                collectiviteId: 1
-                nomCollectivite: "Collectivité Rizicole d'Ambatondrazaka"
-                mois: 3
-                annee: 2026
-                nombreMembresActifs: 45
-                tauxAssiduiteGlobal: 78.3
-        '400':
-          description: "Paramètres invalides (mois ou année manquants)"
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example: "Le mois et l'année sont requis."
-        '404':
-          description: "Collectivité non trouvée"
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example: "Aucune collectivité trouvée avec l'ID spécifié."
-        '500':
-          description: "Erreur interne du serveur"
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
