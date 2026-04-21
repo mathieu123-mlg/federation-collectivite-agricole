@@ -257,7 +257,129 @@ components:
           example: "2020-01-15"
         poste:
           $ref: '#/components/schemas/Poste'
-          
+
+
+      Genre:
+        type: string
+        description: "Genre d'un membre"
+        enum:
+          - MASCULIN
+          - FEMININ
+          - AUTRE
+        example: MASCULIN
+      Poste:
+        type: string
+        description: "Poste occupé par un membre au sein d'une collectivité"
+        enum:
+          - PRESIDENT
+          - VICE_PRESIDENT
+          - SECRETAIRE
+          - TRESORIER
+          - MEMBRE_CONFIRME
+          - MEMBRE_JUNIOR
+        example: PRESIDENT
+      Membre:
+        type: object
+        required:
+          - id
+          - nom
+          - prenom
+          - dateNaissance
+          - genre
+          - adresse
+          - metier
+          - telephone
+          - email
+          - dateAdhesion
+          - poste
+        properties:
+          id:
+            type: integer
+            format: int32
+            description: "Identifiant unique du membre"
+            example: 1
+          nom:
+            type: string
+            description: "Nom de famille du membre"
+            example: "Rasolo"
+          prenom:
+            type: string
+            description: "Prénom du membre"
+            example: "Jean"
+          dateNaissance:
+            type: string
+            format: date
+            description: "Date de naissance du membre"
+            example: "1985-07-20"
+          genre:
+            $ref: '#/components/schemas/Genre'
+          adresse:
+            type: string
+            description: "Adresse du membre"
+            example: "Lot II J 45, Antananarivo"
+          metier:
+            type: string
+            description: "Métier du membre en dehors de la collectivité"
+            example: "Agriculteur"
+          telephone:
+            type: string
+            description: "Numéro de téléphone du membre"
+            example: "+261 34 12 345 67"
+          email:
+            type: string
+            format: email
+            description: "Adresse email du membre"
+            example: "rasolojean@gmail.com"
+          dateAdhesion:
+            type: string
+            format: date
+            description: "Date d'adhésion du membre à la collectivité"
+            example: "2020-01-15"
+          poste:
+            $ref: '#/components/schemas/Poste'
+      CreateMembre:
+        type: object
+        required:
+          - nom
+          - prenom
+          - dateNaissance
+          - genre
+          - adresse
+          - metier
+          - telephone
+          - email
+          - idParrain
+        properties:
+          nom:
+            type: string
+            example: "Andrianarisoa"
+          prenom:
+            type: string
+            example: "Marie"
+          dateNaissance:
+            type: string
+            format: date
+            example: "1990-03-10"
+          genre:
+            $ref: '#/components/schemas/Genre'
+          adresse:
+            type: string
+            example: "Lot IV A 12, Toamasina"
+          metier:
+            type: string
+            example: "Commerçante"
+          telephone:
+            type: string
+            example: "+261 33 12 345 67"
+          email:
+            type: string
+            format: email
+            example: "marie93@gmail.com"
+          idParrain:
+            type: integer
+            format: int32
+            description: Identifiant du membre confirmé parrain (ancienneté > 90 jours requise).
+            example: 4
     CreateMembre:
       type: object
       required:
@@ -603,6 +725,209 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example: "Une erreur est survenue lors du traitement de la demande."
+
+  /collectivites/{collectiviteId}/membres:
+    get:
+      tags:
+        - Membres
+      summary: Lister les membres d'une collectivité
+      description: Retourne la liste de tous les membres inscrits dans une collectivité donnée.
+      operationId: getMemberByCollectivite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      responses:
+        '200':
+          description: Liste des membres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Membre'
+                example:
+                  -id: 1
+                  nom: "Rakoto"
+                  prenom: "Jean"
+                  dateNaissance: "1990-05-20"
+                  genre: MASCULIN
+                  adresse: "Lot II J 45, Antananarivo"
+                  metier: "Agriculteur"
+                  telephone: "+261341234567"
+                  email: "jean.rakoto@example.com"
+                  dateAdhesion: "2023-01-10"
+                  poste: MEMBRE_CONFIRME
+        '404':
+          description: Collectivité introuvable
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erreur interne du serveur.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Membres
+      summary: Admettre un nouveau membre dans une collectivité
+      description: Admet un nouveau membre au sein de la collectivité. Requiert un parrain
+        membre confirmé avec plus de 90 jours d'ancienneté. Le frais d'adhésion
+        de 50 000 MGA est géré séparément via l'endpoint de cotisation.
+      operationId: admitMember
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMembre'
+            example:
+              nom: "Andria"
+              prenom: "Marie"
+              dateNaissance: "1995-08-12"
+              genre: FEMININ
+              adresse: "Rue de la Paix, Fianarantsoa"
+              metier: "Éleveuse"
+              telephone: "+261331234567"
+              email: "marie.andria@example.com"
+              idParrain: 5
+      responses:
+        '201':
+          description: Membre admis avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membre'
+        '400':
+          description: Conditions d'admission non remplies (parrain invalide, données manquantes).
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "Le parrain doit être un membre confirmé avec plus de 90 jours d'ancienneté."
+        '404':
+          description: Collectivité introuvable.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erreur interne du serveur.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /collectivites/{collectiviteId}/membres/{membreId}:
+    get:
+      tags:
+        - Membres
+      summary: Obtenir un membre par ID
+      description: Retourne les informations détaillées d'un membre dans une collectivité.
+      operationId: getMemberById
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/MembreId'
+      responses:
+        '200':
+          description: Membre trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membre'
+        '404':
+          description: Collectivité/membre introuvable
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erreur interne du serveur
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Membres
+      summary: Démissioner/retirer un membre d'une collectivité
+      description: Permet à un membre de démissionner ou d'être retiré d'une collectivité
+        (ex. changement de ville). Le membre reste dans la fédération.
+      operationId: removeMember
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/MembreId'
+      responses:
+        '200':
+          description: Membre retiré avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membre'
+        '404':
+          description: Collectivité/membre introuvable
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erreur interne du serveur
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /collectivites/{collectiviteId}/membres/{membreId}/transfert:
+    post:
+      tags:
+        - Membres
+      summary: Transférer un membre vers une autre collectivité
+      description: Permet à un membre de changer de collectivité (ex. changement de ville)
+      operationId: transferMember
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/MembreId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nouvelleCollectiviteId
+              properties:
+                nouvelleCollectiviteId:
+                  type: integer
+                  format: int32
+                  description: ID de la nouvelle collectivité cible.
+                  example: 3
+      responses:
+        '200':
+          description: Transfert effectué avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membre'
+        '400':
+          description: Transfert invalide
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Collectivité ou membre introuvable.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erreur interne du serveur.
+          content:
+            text/plain:
+              schema:
 
   /collectivites/{collectiviteId}/cotisations:
     post:
