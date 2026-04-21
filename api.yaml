@@ -219,47 +219,7 @@ components:
           format: float
           description: "Pourcentage des cotisations périodiques reversé à la fédération (valeur à déterminer)"
 
-    Membre:
-      type: object
-      properties:
-        id:
-          type: number
-          example: 1
-        nom:
-          type: string
-        prenom:
-          type: string
-        anniversaire:
-          type: string
-        genre:
-          $ref: '#/components/schemas/Genre'
-        adresse:
-          type: string
-          description: "Adresse du membre"
-          example: "Lot II J 45, Antananarivo"
-        metier:
-          type: string
-          description: "Métier du membre en dehors de la collectivité"
-          example: "Agriculteur"
-        telephone:
-          type: string
-          description: "Numéro de téléphone du membre"
-          example: "+261 34 12 345 67"
-        email:
-          type: string
-          format: email
-          description: "Adresse email du membre"
-          example: "rasolojean@gmail.com"
-        dateAdhesion:
-          type: string
-          format: date
-          description: "Date d'adhésion du membre à la collectivité"
-          example: "2020-01-15"
-        poste:
-          $ref: '#/components/schemas/Poste'
-
-
-      Genre:
+    Genre:
         type: string
         description: "Genre d'un membre"
         enum:
@@ -267,7 +227,7 @@ components:
           - FEMININ
           - AUTRE
         example: MASCULIN
-      Poste:
+    Poste:
         type: string
         description: "Poste occupé par un membre au sein d'une collectivité"
         enum:
@@ -278,21 +238,36 @@ components:
           - MEMBRE_CONFIRME
           - MEMBRE_JUNIOR
         example: PRESIDENT
-      Membre:
+    Parrain: 
         type: object
         required:
-          - id
-          - nom
-          - prenom
-          - dateNaissance
-          - genre
-          - adresse
-          - metier
-          - telephone
-          - email
-          - dateAdhesion
-          - poste
+          - membreId
+          - relationCandidat
         properties:
+          membreId:
+            type: integer
+            format: int32
+            description: "ID du membre cofirmé parrain"
+            example: 4
+          relationCandidat:
+            type: string
+            description: "Relation entre le parrain et le candidat (ex. ami, voisin, collègue)"
+            example: "ami de longue date"
+    Membre:
+      type: object
+      required:
+        - id
+        - nom
+        - prenom
+        - dateNaissance
+        - genre
+        - adresse
+        - metier
+        - telephone
+        - email
+        - dateAdhesion
+        - poste
+      properties:
           id:
             type: integer
             format: int32
@@ -337,7 +312,7 @@ components:
             example: "2020-01-15"
           poste:
             $ref: '#/components/schemas/Poste'
-      CreateMembre:
+    CreateMembre:
         type: object
         required:
           - nom
@@ -348,7 +323,7 @@ components:
           - metier
           - telephone
           - email
-          - idParrain
+          - parrains
         properties:
           nom:
             type: string
@@ -375,236 +350,11 @@ components:
             type: string
             format: email
             example: "marie93@gmail.com"
-          idParrain:
-            type: integer
-            format: int32
-            description: Identifiant du membre confirmé parrain (ancienneté > 90 jours requise).
-            example: 4
-    CreateMembre:
-      type: object
-      required:
-        - nom
-        - prenom
-        - dateNaissance
-        - genre
-        - adresse
-        - metier
-        - telephone
-        - email
-        - idParrain
-      properties:
-        nom:
-          type: string
-          example: "Andrianarisoa"
-        prenom:
-          type: string
-          example: "Marie"
-        dateNaissance:
-          type: string
-          format: date
-          example: "1990-03-10"
-        genre:
-          $ref: '#/components/schemas/Genre'
-        adresse:
-          type: string
-          example: "Lot IV A 12, Toamasina"
-        metier:
-          type: string
-          example: "Commerçante"
-        telephone:
-          type: string
-          example: "+261 33 12 345 67"
-        email:
-          type: string
-          format: email
-          example: "marie93@gmail.com"
-        idParrain:
-          type: integer
-          format: int32
-          description: Identifiant du membre confirmé parrain (ancienneté > 90 jours requise).
-          example: 4
-
-    Genre:
-      type: object
-      enum:
-        - feminin
-        - masculin
-
-    Poste:
-      enum:
-        - president
-        - president_adjoint
-        - treasury
-        - secretary
-        - confirmed_member
-        - junior_member
-
-    Metier:
-      type: object
-      enum:
-        - collecteur
-        - pruducteur
-
-    TypeCompte:
-      type: string
-      enum: [CAISSE, BANCAIRE, MOBILE_MONEY]
-      description: "Type de compte : caisse (unique), bancaire ou mobile money"
-      example: BANCAIRE
-
-    Banque:
-      type: string
-      enum: [BRED, MCB, BMOI, BOA, BGFI, AFG, ACCES_BANQUE, BAOBAB, SIPEM]
-      description: "Nom de la banque pour un compte bancaire"
-
-    ServiceMobileMoney:
-      type: string
-      enum: [ORANGE_MONEY, MVOLA, AIRTEL_MONEY]
-      description: "Service mobile money"
-
-    Compte:
-      type: object
-      required:
-        - id
-        - entite
-        - typeEntite
-        - typeCompte
-        - titulaire
-        - solde
-        - devise
-      properties:
-        id:
-          type: integer
-          format: int64
-          description: "Identifiant unique du compte"
-        entite:
-          type: object
-          required:
-            - id
-            - nom
-          properties:
-            id:
-              type: integer
-              format: int64
-            nom:
-              type: string
-          description: "Collectivité ou fédération propriétaire du compte"
-        typeEntite:
-          type: string
-          enum: [COLLECTIVITE, FEDERATION]
-          description: "Type d'entité propriétaire"
-        typeCompte:
-          $ref: '#/components/schemas/TypeCompte'
-        titulaire:
-          type: string
-          description: "Nom du titulaire du compte"
-        solde:
-          type: integer
-          description: "Solde actuel du compte en MGA à une date donnée"
-          example: 1500000
-        devise:
-          type: string
-          default: "MGA"
-          description: "Devise du compte (Ariary par défaut)"
-        banque:
-          $ref: '#/components/schemas/Banque'
-        numeroCompte:
-          type: string
-          description: "Format BBBBB GGGGG CCCCCCCCCCC KK (23 chiffres)"
-          example: "12345 67890 12345678901 12"
-        serviceMobileMoney:
-          $ref: '#/components/schemas/ServiceMobileMoney'
-        numeroTelephone:
-          type: string
-          description: "Numéro de téléphone unique associé au compte mobile money"
-          example: "0321234567"
-
-    CreateCompte:
-      type: object
-      required:
-        - typeCompte
-        - titulaire
-      properties:
-        typeCompte:
-          $ref: '#/components/schemas/TypeCompte'
-        titulaire:
-          type: string
-          description: "Nom du titulaire du compte"
-        banque:
-          $ref: '#/components/schemas/Banque'
-        numeroCompte:
-          type: string
-          description: "Format BBBBB GGGGG CCCCCCCCCCC KK"
-        serviceMobileMoney:
-          $ref: '#/components/schemas/ServiceMobileMoney'
-        numeroTelephone:
-          type: string
-
-    SoldeResponse:
-      type: object
-      required:
-        - compteId
-        - solde
-        - date
-        - devise
-      properties:
-        compteId:
-          type: integer
-          format: int64
-        solde:
-          type: integer
-          description: "Solde du compte à la date donnée"
-        date:
-          type: string
-          format: date
-          description: "Date à laquelle le solde est consulté"
-        devise:
-          type: string
-          example: "MGA"
-
-    TresorerieResponse:
-      type: object
-      required:
-        - entite
-        - typeEntite
-        - soldeTotal
-        - dateCalcul
-        - comptes
-      properties:
-        entite:
-          type: object
-          properties:
-            id:
-              type: integer
-            nom:
-              type: string
-        typeEntite:
-          type: string
-          enum: [COLLECTIVITE, FEDERATION]
-        soldeTotal:
-          type: integer
-          description: "Somme des soldes de tous les comptes (caisse + bancaires + mobile money)"
-        dateCalcul:
-          type: string
-          format: date
-        comptes:
-          type: array
-          items:
-            $ref: '#/components/schemas/Compte'
-
-    UpdateSoldeRequest:
-      type: object
-      required:
-        - montantVariation
-        - motif
-      properties:
-        montantVariation:
-          type: integer
-          description: "Positif pour ajout (encaissement), négatif pour retrait (dépense)"
-          example: 50000
-        motif:
-          type: string
-          description: "Raison de la variation (ex: cotisation mensuelle, dépense activité)"
-          example: "Cotisation mensuelle membre Dupont"
+          parrains:
+            type: array
+            minItems: 2
+            items:
+              $ref: '#/components/schemas/Parrain'
 
     StatistiquesMembre:
       type: object
@@ -1011,6 +761,7 @@ paths:
           content:
             text/plain:
               schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /collectivites/{collectiviteId}/cotisations:
     post:
