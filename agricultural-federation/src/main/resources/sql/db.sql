@@ -1,7 +1,10 @@
-drop database agricultural_federation;
+\c postgres
+
 create database agricultural_federation;
 create user agricultural_federation_manager with password '123456';
 grant connect on database agricultural_federation to agricultural_federation_manager;
+
+\c postgres agricultural_federation
 
 grant create, usage on schema public to agricultural_federation_manager;
 alter default privileges in schema public
