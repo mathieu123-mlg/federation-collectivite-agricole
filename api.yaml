@@ -5,7 +5,7 @@ info:
 servers:
   - url: 'http://localhost:8080'
 tags:
-  - name: Collectivités 
+  - name: Collectivités
     description: "A - Ouverture et gestion des collectivités agricoles"
   - name: Membres
     description: "B - Gestion des membres et de leur adhésion"
@@ -39,6 +39,48 @@ components:
       example: 1
 
   schemas:
+
+    RapportMensuelCollectivite:
+      type: object
+      required:
+        - collectiviteId
+        - nomCollectivite
+        - mois
+        - annee
+        - nombreMembresActifs
+        - tauxAssiduiteGlobal
+      properties:
+        collectiviteId:
+          type: integer
+          format: int32
+          description: "ID de la collectivité"
+          example: 1
+        nomCollectivite:
+          type: string
+          description: "Nom de la collectivité"
+          example: "Collectivité Rizicole d'Ambatondrazaka"
+        mois:
+          type: integer
+          description: "Mois du rapport (1 = janvier, 12 = décembre)"
+          minimum: 1
+          maximum: 12
+          example: 3
+        annee:
+          type: integer
+          description: "Année du rapport"
+          example: 2026
+        nombreMembresActifs:
+          type: integer
+          description: "Nombre de membres actifs (n’ayant pas démissionné) dans la collectivité"
+          minimum: 0
+          example: 45
+        tauxAssiduiteGlobal:
+          type: number
+          format: float
+          description: "Taux d’assiduité global de la collectivité sur le mois (en pourcentage, de 0 à 100)"
+          minimum: 0
+          maximum: 100
+          example: 78.3
     SpecialiteAgricole:
       type: string
       description: "Spécialité agricole de la collectivité"
@@ -225,18 +267,73 @@ components:
           format: float
           description: "Pourcentage des cotisations périodiques reversé à la fédération (valeur à déterminer)"
 
+    Genre:
+      type: string
+      description: "Genre d'un membre"
+      enum:
+        - MASCULIN
+        - FEMININ
+        - AUTRE
+      example: MASCULIN
+    Poste:
+      type: string
+      description: "Poste occupé par un membre au sein d'une collectivité"
+      enum:
+        - PRESIDENT
+        - VICE_PRESIDENT
+        - SECRETAIRE
+        - TRESORIER
+        - MEMBRE_CONFIRME
+        - MEMBRE_JUNIOR
+      example: PRESIDENT
+    Parrain:
+      type: object
+      required:
+        - membreId
+        - relationCandidat
+      properties:
+        membreId:
+          type: integer
+          format: int32
+          description: "ID du membre cofirmé parrain"
+          example: 4
+        relationCandidat:
+          type: string
+          description: "Relation entre le parrain et le candidat (ex. ami, voisin, collègue)"
+          example: "ami de longue date"
     Membre:
       type: object
+      required:
+        - id
+        - nom
+        - prenom
+        - dateNaissance
+        - genre
+        - adresse
+        - metier
+        - telephone
+        - email
+        - dateAdhesion
+        - poste
       properties:
         id:
-          type: number
+          type: integer
+          format: int32
+          description: "Identifiant unique du membre"
           example: 1
         nom:
           type: string
+          description: "Nom de famille du membre"
+          example: "Rasolo"
         prenom:
           type: string
-        anniversaire:
+          description: "Prénom du membre"
+          example: "Jean"
+        dateNaissance:
           type: string
+          format: date
+          description: "Date de naissance du membre"
+          example: "1985-07-20"
         genre:
           $ref: '#/components/schemas/Genre'
         adresse:
@@ -263,86 +360,6 @@ components:
           example: "2020-01-15"
         poste:
           $ref: '#/components/schemas/Poste'
-
-
-      Genre:
-        type: string
-        description: "Genre d'un membre"
-        enum:
-          - MASCULIN
-          - FEMININ
-          - AUTRE
-        example: MASCULIN
-      Poste:
-        type: string
-        description: "Poste occupé par un membre au sein d'une collectivité"
-        enum:
-          - PRESIDENT
-          - VICE_PRESIDENT
-          - SECRETAIRE
-          - TRESORIER
-          - MEMBRE_CONFIRME
-          - MEMBRE_JUNIOR
-        example: PRESIDENT
-      Membre:
-        type: object
-        required:
-          - id
-          - nom
-          - prenom
-          - dateNaissance
-          - genre
-          - adresse
-          - metier
-          - telephone
-          - email
-          - dateAdhesion
-          - poste
-        properties:
-          id:
-            type: integer
-            format: int32
-            description: "Identifiant unique du membre"
-            example: 1
-          nom:
-            type: string
-            description: "Nom de famille du membre"
-            example: "Rasolo"
-          prenom:
-            type: string
-            description: "Prénom du membre"
-            example: "Jean"
-          dateNaissance:
-            type: string
-            format: date
-            description: "Date de naissance du membre"
-            example: "1985-07-20"
-          genre:
-            $ref: '#/components/schemas/Genre'
-          adresse:
-            type: string
-            description: "Adresse du membre"
-            example: "Lot II J 45, Antananarivo"
-          metier:
-            type: string
-            description: "Métier du membre en dehors de la collectivité"
-            example: "Agriculteur"
-          telephone:
-            type: string
-            description: "Numéro de téléphone du membre"
-            example: "+261 34 12 345 67"
-          email:
-            type: string
-            format: email
-            description: "Adresse email du membre"
-            example: "rasolojean@gmail.com"
-          dateAdhesion:
-            type: string
-            format: date
-            description: "Date d'adhésion du membre à la collectivité"
-            example: "2020-01-15"
-          poste:
-            $ref: '#/components/schemas/Poste'
       CreateMembre:
         type: object
         required:
@@ -430,73 +447,103 @@ components:
           description: Identifiant du membre confirmé parrain (ancienneté > 90 jours requise).
           example: 4
 
-    Genre:
-      type: object
-      enum:
-        - feminin
-        - masculin
-
-    Poste:
-      enum:
-        - president
-        - president_adjoint
-        - treasury
-        - secretary
-        - confirmed_member
-        - junior_member
-
     Metier:
       type: object
       enum:
         - collecteur
         - pruducteur
 
+    UpdateSoldeRequest:
+      type: object
+      required:
+        - montantVariation
+        - motif
+      properties:
+        montantVariation:
+          type: integer
+          description: "Positif pour ajout (encaissement), négatif pour retrait (dépense)"
+          example: 50000
+        motif:
+          type: string
+          description: "Raison de la variation (ex: cotisation mensuelle, dépense activité)"
+          example: "Cotisation mensuelle membre Dupont"
+        type: object
+        required:
+          - nom
+          - prenom
+          - dateNaissance
+          - genre
+          - adresse
+          - metier
+          - telephone
+          - email
+          - parrains
+        properties:
+          nom:
+            type: string
+            example: "Andrianarisoa"
+          prenom:
+            type: string
+            example: "Marie"
+          dateNaissance:
+            type: string
+            format: date
+            example: "1990-03-10"
+          genre:
+            $ref: '#/components/schemas/Genre'
+          adresse:
+            type: string
+            example: "Lot IV A 12, Toamasina"
+          metier:
+            type: string
+            example: "Commerçante"
+          telephone:
+            type: string
+            example: "+261 33 12 345 67"
+          email:
+            type: string
+            format: email
+            example: "marie93@gmail.com"
+          parrains:
+            type: array
+            minItems: 2
+            description: Au moins 2 parrains squi sont membres confirmés requis pour l'admission d'un nouveau membre
+            items:
+              $ref: '#/components/schemas/Parrain'
     TypeCompte:
       type: string
-      enum: [CAISSE, BANCAIRE, MOBILE_MONEY]
+      enum: [ CAISSE, BANCAIRE, MOBILE_MONEY ]
       description: "Type de compte : caisse (unique), bancaire ou mobile money"
       example: BANCAIRE
 
     Banque:
       type: string
-      enum: [BRED, MCB, BMOI, BOA, BGFI, AFG, ACCES_BANQUE, BAOBAB, SIPEM]
+      enum: [ BRED, MCB, BMOI, BOA, BGFI, AFG, ACCES_BANQUE, BAOBAB, SIPEM ]
       description: "Nom de la banque pour un compte bancaire"
 
     ServiceMobileMoney:
       type: string
-      enum: [ORANGE_MONEY, MVOLA, AIRTEL_MONEY]
+      enum: [ ORANGE_MONEY, MVOLA, AIRTEL_MONEY ]
       description: "Service mobile money"
 
     Compte:
       type: object
       required:
-        - id
-        - entite
-        - typeEntite
-        - typeCompte
-        - titulaire
-        - solde
-        - devise
+        - membreId
+        - nom
+        - prenom
+        - tauxAssiduite
+        - montantEncaissement
+        - montantImpayePotentiel
       properties:
-        id:
+        membreId:
           type: integer
-          format: int64
-          description: "Identifiant unique du compte"
-        entite:
-          type: object
-          required:
-            - id
-            - nom
-          properties:
-            id:
-              type: integer
-              format: int64
-            nom:
-              type: string
-          description: "Collectivité ou fédération propriétaire du compte"
-        typeEntite:
+          format: int32
+          description: "ID du membre"
+          example: 5
+        nom:
           type: string
-          enum: [COLLECTIVITE, FEDERATION]
+          enum: [ COLLECTIVITE, FEDERATION ]
           description: "Type d'entité propriétaire"
         typeCompte:
           $ref: '#/components/schemas/TypeCompte'
@@ -585,7 +632,7 @@ components:
               type: string
         typeEntite:
           type: string
-          enum: [COLLECTIVITE, FEDERATION]
+          enum: [ COLLECTIVITE, FEDERATION ]
         soldeTotal:
           type: integer
           description: "Somme des soldes de tous les comptes (caisse + bancaires + mobile money)"
@@ -597,20 +644,116 @@ components:
           items:
             $ref: '#/components/schemas/Compte'
 
-    UpdateSoldeRequest:
-      type: object
-      required:
-        - montantVariation
-        - motif
-      properties:
-        montantVariation:
-          type: integer
-          description: "Positif pour ajout (encaissement), négatif pour retrait (dépense)"
-          example: 50000
-        motif:
-          type: string
-          description: "Raison de la variation (ex: cotisation mensuelle, dépense activité)"
-          example: "Cotisation mensuelle membre Dupont"
+
+  RapportGlobalFederation:
+    type: object
+    required:
+      - periode
+      - dateDebut
+      - dateFin
+      - dateEtablissement
+      - nombreTotalCollectivites
+      - nombreTotalMembresActifs
+      - nombreTotalNouveauxAdherents
+      - tauxAssiduiteMoyenFederation
+      - pourcentageMoyenAJourCotisation
+      - collectivites
+      - collectiviteLaPlusMeritante
+      - collectiviteAMeliorer
+    properties:
+      periode:
+        type: string
+        description: "Type de période (mensuel ou annuel)"
+        enum:
+          - MENSUEL
+          - ANNUEL
+        example: "MENSUEL"
+      dateDebut:
+        type: string
+        format: date
+        description: "Date de début de la période"
+        example: "2026-03-01"
+      dateFin:
+        type: string
+        format: date
+        description: "Date de fin de la période"
+        example: "2026-03-31"
+      dateEtablissement:
+        type: string
+        format: date
+        description: "Date d'établissement du rapport"
+        example: "2026-04-05"
+      nombreTotalCollectivites:
+        type: integer
+        description: "Nombre total de collectivités dans la fédération"
+        example: 5
+      nombreTotalMembresActifs:
+        type: integer
+        description: "Nombre total de membres actifs dans toute la fédération"
+        example: 187
+      nombreTotalNouveauxAdherents:
+        type: integer
+        description: "Nombre total de nouveaux adhérents sur la période dans toute la fédération"
+        example: 42
+      tauxAssiduiteMoyenFederation:
+        type: number
+        format: float
+        description: "Taux d'assiduité moyen de toutes les collectivités (moyenne non pondérée)"
+        minimum: 0
+        maximum: 100
+        example: 74.2
+      pourcentageMoyenAJourCotisation:
+        type: number
+        format: float
+        description: "Pourcentage moyen de membres à jour de cotisation (moyenne non pondérée)"
+        minimum: 0
+        maximum: 100
+        example: 80.6
+      collectivites:
+        type: array
+        description: "Liste des statistiques par collectivité (triées par taux d'assiduité décroissant)"
+        items:
+          $ref: '#/components/schemas/StatistiquesCollectivite'
+      collectiviteLaPlusMeritante:
+        type: object
+        description: "Collectivité avec le meilleur taux d'assiduité (à féliciter)"
+        required:
+          - collectiviteId
+          - nomCollectivite
+          - tauxAssiduiteGlobal
+        properties:
+          collectiviteId:
+            type: integer
+            format: int32
+          nomCollectivite:
+            type: string
+          tauxAssiduiteGlobal:
+            type: number
+            format: float
+        example:
+          collectiviteId: 3
+          nomCollectivite: "Collectivité Arboricole de Fianarantsoa"
+          tauxAssiduiteGlobal: 92.5
+      collectiviteAMeliorer:
+        type: object
+        description: "Collectivité avec le plus faible taux d'assiduité (à améliorer)"
+        required:
+          - collectiviteId
+          - nomCollectivite
+          - tauxAssiduiteGlobal
+        properties:
+          collectiviteId:
+            type: integer
+            format: int32
+          nomCollectivite:
+            type: string
+          tauxAssiduiteGlobal:
+            type: number
+            format: float
+        example:
+          collectiviteId: 4
+          nomCollectivite: "Collectivité Piscicole de Morondava"
+          tauxAssiduiteGlobal: 55.0
 
     StatistiquesMembre:
       type: object
@@ -652,210 +795,6 @@ components:
           description: "Montant potentiel impayé par le membre sur la période (en MGA)"
           minimum: 0
           example: 50000
-
-    RapportMensuelCollectivite:
-      type: object
-      required:
-        - collectiviteId
-        - nomCollectivite
-        - mois
-        - annee
-        - nombreMembresActifs
-        - tauxAssiduiteGlobal
-      properties:
-        collectiviteId:
-          type: integer
-          format: int32
-          description: "ID de la collectivité"
-          example: 1
-        nomCollectivite:
-          type: string
-          description: "Nom de la collectivité"
-          example: "Collectivité Rizicole d'Ambatondrazaka"
-        mois:
-          type: integer
-          description: "Mois du rapport (1 = janvier, 12 = décembre)"
-          minimum: 1
-          maximum: 12
-          example: 3
-        annee:
-          type: integer
-          description: "Année du rapport"
-          example: 2026
-        nombreMembresActifs:
-          type: integer
-          description: "Nombre de membres actifs (n’ayant pas démissionné) dans la collectivité"
-          minimum: 0
-          example: 45
-        tauxAssiduiteGlobal:
-          type: number
-          format: float
-          description: "Taux d’assiduité global de la collectivité sur le mois (en pourcentage, de 0 à 100)"
-          minimum: 0
-          maximum: 100
-          example: 78.3
-    StatistiquesCollectivite:
-      type: object
-      required:
-        - collectiviteId
-        - nomCollectivite
-        - ville
-        - specialite
-        - tauxAssiduiteGlobal
-        - pourcentageMembresAJourCotisation
-        - nombreNouveauxAdherents
-        - nombreMembresActifs
-      properties:
-        collectiviteId:
-          type: integer
-          format: int32
-          description: "ID de la collectivité"
-          example: 1
-        nomCollectivite:
-          type: string
-          description: "Nom de la collectivité"
-          example: "Collectivité Rizicole d'Ambatondrazaka"
-        ville:
-          type: string
-          description: "Ville de la collectivité"
-          example: "Ambatondrazaka"
-        specialite:
-          $ref: '#/components/schemas/SpecialiteAgricole'
-        tauxAssiduiteGlobal:
-          type: number
-          format: float
-          description: "Taux d'assiduité global de la collectivité sur la période (en pourcentage, de 0 à 100)"
-          minimum: 0
-          maximum: 100
-          example: 78.3
-        pourcentageMembresAJourCotisation:
-          type: number
-          format: float
-          description: "Pourcentage de membres à jour de leur cotisation sur la période (en pourcentage, de 0 à 100)"
-          minimum: 0
-          maximum: 100
-          example: 85.5
-        nombreNouveauxAdherents:
-          type: integer
-          description: "Nombre de nouveaux adhérents ayant rejoint la collectivité sur la période"
-          minimum: 0
-          example: 12
-        nombreMembresActifs:
-          type: integer
-          description: "Nombre total de membres actifs dans la collectivité à la fin de la période"
-          minimum: 0
-          example: 45
-
-    RapportGlobalFederation:
-      type: object
-      required:
-        - periode
-        - dateDebut
-        - dateFin
-        - dateEtablissement
-        - nombreTotalCollectivites
-        - nombreTotalMembresActifs
-        - nombreTotalNouveauxAdherents
-        - tauxAssiduiteMoyenFederation
-        - pourcentageMoyenAJourCotisation
-        - collectivites
-        - collectiviteLaPlusMeritante
-        - collectiviteAMeliorer
-      properties:
-        periode:
-          type: string
-          description: "Type de période (mensuel ou annuel)"
-          enum:
-            - MENSUEL
-            - ANNUEL
-          example: "MENSUEL"
-        dateDebut:
-          type: string
-          format: date
-          description: "Date de début de la période"
-          example: "2026-03-01"
-        dateFin:
-          type: string
-          format: date
-          description: "Date de fin de la période"
-          example: "2026-03-31"
-        dateEtablissement:
-          type: string
-          format: date
-          description: "Date d'établissement du rapport"
-          example: "2026-04-05"
-        nombreTotalCollectivites:
-          type: integer
-          description: "Nombre total de collectivités dans la fédération"
-          example: 5
-        nombreTotalMembresActifs:
-          type: integer
-          description: "Nombre total de membres actifs dans toute la fédération"
-          example: 187
-        nombreTotalNouveauxAdherents:
-          type: integer
-          description: "Nombre total de nouveaux adhérents sur la période dans toute la fédération"
-          example: 42
-        tauxAssiduiteMoyenFederation:
-          type: number
-          format: float
-          description: "Taux d'assiduité moyen de toutes les collectivités (moyenne non pondérée)"
-          minimum: 0
-          maximum: 100
-          example: 74.2
-        pourcentageMoyenAJourCotisation:
-          type: number
-          format: float
-          description: "Pourcentage moyen de membres à jour de cotisation (moyenne non pondérée)"
-          minimum: 0
-          maximum: 100
-          example: 80.6
-        collectivites:
-          type: array
-          description: "Liste des statistiques par collectivité (triées par taux d'assiduité décroissant)"
-          items:
-            $ref: '#/components/schemas/StatistiquesCollectivite'
-        collectiviteLaPlusMeritante:
-          type: object
-          description: "Collectivité avec le meilleur taux d'assiduité (à féliciter)"
-          required:
-            - collectiviteId
-            - nomCollectivite
-            - tauxAssiduiteGlobal
-          properties:
-            collectiviteId:
-              type: integer
-              format: int32
-            nomCollectivite:
-              type: string
-            tauxAssiduiteGlobal:
-              type: number
-              format: float
-          example:
-            collectiviteId: 3
-            nomCollectivite: "Collectivité Arboricole de Fianarantsoa"
-            tauxAssiduiteGlobal: 92.5
-        collectiviteAMeliorer:
-          type: object
-          description: "Collectivité avec le plus faible taux d'assiduité (à améliorer)"
-          required:
-            - collectiviteId
-            - nomCollectivite
-            - tauxAssiduiteGlobal
-          properties:
-            collectiviteId:
-              type: integer
-              format: int32
-            nomCollectivite:
-              type: string
-            tauxAssiduiteGlobal:
-              type: number
-              format: float
-          example:
-            collectiviteId: 4
-            nomCollectivite: "Collectivité Piscicole de Morondava"
-            tauxAssiduiteGlobal: 55.0
-
 paths:
   /collectivites:
     get:
@@ -1178,6 +1117,7 @@ paths:
           content:
             text/plain:
               schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /collectivites/{collectiviteId}/cotisations:
     post:
@@ -1185,7 +1125,7 @@ paths:
         - C - Cotisation et paiements
       summary: "Enregistrer une cotisation"
       description:
-        Le trésorier de la collectivité garde une trace écrite du montant, 
+        Le trésorier de la collectivité garde une trace écrite du montant,
         de la date de l'encaissement et du mode de paiement (espèce, virement bancaire ou mobile money).
       operationId: createCotisation
       parameters:
