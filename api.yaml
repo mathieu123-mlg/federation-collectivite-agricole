@@ -606,6 +606,89 @@ components:
           description: "Raison de la variation (ex: cotisation mensuelle, dépense activité)"
           example: "Cotisation mensuelle membre Dupont"
 
+    StatistiquesMembre:
+      type: object
+      required:
+        - membreId
+        - nom
+        - prenom
+        - tauxAssiduite
+        - montantEncaissement
+        - montantImpayePotentiel
+      properties:
+        membreId:
+          type: integer
+          format: int32
+          description: "ID du membre"
+          example: 5
+        nom:
+          type: string
+          description: "Nom du membre"
+          example: "Rakoto"
+        prenom:
+          type: string
+          description: "Prénom du membre"
+          example: "Jean"
+        tauxAssiduite:
+          type: number
+          format: float
+          description: "Taux d’assiduité sur la période donnée (en pourcentage, de 0 à 100)"
+          minimum: 0
+          maximum: 100
+          example: 85.5
+        montantEncaissement:
+          type: integer
+          description: "Montant total encaissé par le membre sur la période (en MGA)"
+          minimum: 0
+          example: 150000
+        montantImpayePotentiel:
+          type: integer
+          description: "Montant potentiel impayé par le membre sur la période (en MGA)"
+          minimum: 0
+          example: 50000
+
+    RapportMensuelCollectivite:
+      type: object
+      required:
+        - collectiviteId
+        - nomCollectivite
+        - mois
+        - annee
+        - nombreMembresActifs
+        - tauxAssiduiteGlobal
+      properties:
+        collectiviteId:
+          type: integer
+          format: int32
+          description: "ID de la collectivité"
+          example: 1
+        nomCollectivite:
+          type: string
+          description: "Nom de la collectivité"
+          example: "Collectivité Rizicole d'Ambatondrazaka"
+        mois:
+          type: integer
+          description: "Mois du rapport (1 = janvier, 12 = décembre)"
+          minimum: 1
+          maximum: 12
+          example: 3
+        annee:
+          type: integer
+          description: "Année du rapport"
+          example: 2026
+        nombreMembresActifs:
+          type: integer
+          description: "Nombre de membres actifs (n’ayant pas démissionné) dans la collectivité"
+          minimum: 0
+          example: 45
+        tauxAssiduiteGlobal:
+          type: number
+          format: float
+          description: "Taux d’assiduité global de la collectivité sur le mois (en pourcentage, de 0 à 100)"
+          minimum: 0
+          maximum: 100
+          example: 78.3
+
 paths:
   /collectivites:
     get:
@@ -1261,3 +1344,151 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TresorerieResponse'
+
+  /collectivites/{collectiviteId}/statistiques/membres:
+    get:
+      tags:
+        - G - Statistiques d’une collectivité
+      summary: "Statistiques détaillées des membres actifs d’une collectivité"
+      description: |
+        Pour le président de la collectivité. Retourne pour chaque membre actif (n’ayant pas démissionné) :
+        - Le taux d’assiduité sur une période donnée
+        - Le montant d’encaissement sur une période donnée
+        - Le montant impayé potentiel sur une période donnée
+      operationId: getStatistiquesMembres
+      parameters:
+        - name: collectiviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: "ID de la collectivité"
+        - name: dateDebut
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: "Date de début de la période (inclusive)"
+          example: "2026-03-01"
+        - name: dateFin
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: "Date de fin de la période (inclusive)"
+          example: "2026-03-31"
+      responses:
+        '200':
+          description: "Liste des statistiques par membre actif"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StatistiquesMembre'
+                example:
+                  - membreId: 5
+                    nom: "Rakoto"
+                    prenom: "Jean"
+                    tauxAssiduite: 85.5
+                    montantEncaissement: 150000
+                    montantImpayePotentiel: 50000
+                  - membreId: 12
+                    nom: "Rabe"
+                    prenom: "Marie"
+                    tauxAssiduite: 92.0
+                    montantEncaissement: 200000
+                    montantImpayePotentiel: 0
+        '400':
+          description: "Paramètres invalides (dates manquantes ou incohérentes)"
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "Les dates de début et de fin sont requises et doivent être cohérentes."
+        '404':
+          description: "Collectivité non trouvée"
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "Aucune collectivité trouvée avec l'ID spécifié."
+        '500':
+          description: "Erreur interne du serveur"
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /collectivites/{collectiviteId}/rapport-mensuel:
+    get:
+      tags:
+        - G - Statistiques d’une collectivité
+      summary: "Rapport mensuel d’une collectivité pour la fédération"
+      description: |
+        Le président de la collectivité doit faire un rapport mensuel à la fédération contenant :
+        - Le taux d’assiduité global de la collectivité
+        - Le nombre de membres actifs (n’ayant pas démissionné)
+      operationId: getRapportMensuelCollectivite
+      parameters:
+        - name: collectiviteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: "ID de la collectivité"
+        - name: mois
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+          description: "Mois du rapport (1 = janvier, 12 = décembre)"
+          example: 3
+        - name: annee
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 2000
+          description: "Année du rapport"
+          example: 2026
+      responses:
+        '200':
+          description: "Rapport mensuel de la collectivité"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RapportMensuelCollectivite'
+              example:
+                collectiviteId: 1
+                nomCollectivite: "Collectivité Rizicole d'Ambatondrazaka"
+                mois: 3
+                annee: 2026
+                nombreMembresActifs: 45
+                tauxAssiduiteGlobal: 78.3
+        '400':
+          description: "Paramètres invalides (mois ou année manquants)"
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "Le mois et l'année sont requis."
+        '404':
+          description: "Collectivité non trouvée"
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "Aucune collectivité trouvée avec l'ID spécifié."
+        '500':
+          description: "Erreur interne du serveur"
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
