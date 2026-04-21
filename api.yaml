@@ -5,7 +5,7 @@ info:
 servers:
   - url: 'http://localhost:8080'
 tags:
-  - name: Collectivités
+  - name: Collectivités 
     description: "A - Ouverture et gestion des collectivités agricoles"
   - name: Membres
     description: "B - Gestion des membres et de leur adhésion"
@@ -453,18 +453,18 @@ components:
 
     TypeCompte:
       type: string
-      enum: [ CAISSE, BANCAIRE, MOBILE_MONEY ]
+      enum: [CAISSE, BANCAIRE, MOBILE_MONEY]
       description: "Type de compte : caisse (unique), bancaire ou mobile money"
       example: BANCAIRE
 
     Banque:
       type: string
-      enum: [ BRED, MCB, BMOI, BOA, BGFI, AFG, ACCES_BANQUE, BAOBAB, SIPEM ]
+      enum: [BRED, MCB, BMOI, BOA, BGFI, AFG, ACCES_BANQUE, BAOBAB, SIPEM]
       description: "Nom de la banque pour un compte bancaire"
 
     ServiceMobileMoney:
       type: string
-      enum: [ ORANGE_MONEY, MVOLA, AIRTEL_MONEY ]
+      enum: [ORANGE_MONEY, MVOLA, AIRTEL_MONEY]
       description: "Service mobile money"
 
     Compte:
@@ -496,7 +496,7 @@ components:
           description: "Collectivité ou fédération propriétaire du compte"
         typeEntite:
           type: string
-          enum: [ COLLECTIVITE, FEDERATION ]
+          enum: [COLLECTIVITE, FEDERATION]
           description: "Type d'entité propriétaire"
         typeCompte:
           $ref: '#/components/schemas/TypeCompte'
@@ -585,7 +585,7 @@ components:
               type: string
         typeEntite:
           type: string
-          enum: [ COLLECTIVITE, FEDERATION ]
+          enum: [COLLECTIVITE, FEDERATION]
         soldeTotal:
           type: integer
           description: "Somme des soldes de tous les comptes (caisse + bancaires + mobile money)"
@@ -1185,7 +1185,7 @@ paths:
         - C - Cotisation et paiements
       summary: "Enregistrer une cotisation"
       description:
-        Le trésorier de la collectivité garde une trace écrite du montant,
+        Le trésorier de la collectivité garde une trace écrite du montant, 
         de la date de l'encaissement et du mode de paiement (espèce, virement bancaire ou mobile money).
       operationId: createCotisation
       parameters:
