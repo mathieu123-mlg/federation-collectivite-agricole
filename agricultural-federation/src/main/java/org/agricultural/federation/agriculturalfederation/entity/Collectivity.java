@@ -32,11 +32,11 @@ public class Collectivity {
         this.id = id;
     }
 
-    public CollectivityIdentifier getName() {
+    public CollectivityIdentifier getIdentifier() {
         return identifier;
     }
 
-    public void setName(CollectivityIdentifier identifier) {
+    public void setIdentifier(CollectivityIdentifier identifier) {
         this.identifier = identifier;
     }
 

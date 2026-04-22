@@ -1,16 +1,13 @@
 package org.agricultural.federation.agriculturalfederation.repository;
 
 import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
+import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
 import org.agricultural.federation.agriculturalfederation.entity.CollectivityStructure;
 import org.agricultural.federation.agriculturalfederation.entity.Member;
 import org.agricultural.federation.agriculturalfederation.mapper.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,14 +26,13 @@ public class CollectivityRepository {
 
     public Optional<Collectivity> save(Collectivity collectivity) {
         String sql = """
-                INSERT INTO collectivity (name, location, speciality, creation_datetime, federation_approval)
+                INSERT INTO collectivity (location, speciality, creation_datetime, federation_approval)
                 VALUES (?, ?, ?, ?, ?) RETURNING id""";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, collectivity.getName());
-            ps.setString(2, collectivity.getLocation());
-            ps.setString(3, collectivity.getSpeciality());
-            ps.setTimestamp(4, Timestamp.from(collectivity.getCreationDate()));
-            ps.setBoolean(5, collectivity.isFederationApproval());
+            ps.setString(1, collectivity.getLocation());
+            ps.setString(2, collectivity.getSpeciality());
+            ps.setTimestamp(3, Timestamp.from(collectivity.getCreationDate()));
+            ps.setBoolean(4, collectivity.isFederationApproval());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     collectivity.setId(rs.getInt("id"));
@@ -145,11 +141,11 @@ public class CollectivityRepository {
 
     private List<Member> findMembersByCollectivityId(Integer collectivityId) {
         String sql = """
-            SELECT m.id, m.first_name, m.last_name, m.birth_date, m.gender::text,
-                   m.address, m.profession, m.phone_number, m.email, m.adhesion_date
-            FROM member m JOIN member_collectivity mc ON m.id = mc.member_id
-            WHERE mc.collectivity_id = ? AND mc.leave_date IS NULL
-        """;
+                    SELECT m.id, m.first_name, m.last_name, m.birth_date, m.gender::text,
+                           m.address, m.profession, m.phone_number, m.email, m.adhesion_date
+                    FROM member m JOIN member_collectivity mc ON m.id = mc.member_id
+                    WHERE mc.collectivity_id = ? AND mc.leave_date IS NULL
+                """;
         List<Member> members = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, collectivityId);
@@ -164,12 +160,12 @@ public class CollectivityRepository {
 
     private CollectivityStructure findStructureByCollectivityId(Integer collectivityId) {
         String sql = """
-            SELECT mr.role, m.id, m.first_name, m.last_name, m.birth_date, m.gender::text,
-                   m.address, m.profession, m.phone_number, m.email, m.adhesion_date
-            FROM mandate ma JOIN member_role mr ON ma.id = mr.mandate_id
-            JOIN member m ON mr.member_id = m.id
-            WHERE ma.collectivity_id = ? AND ma.end_date >= CURRENT_DATE
-        """;
+                    SELECT mr.role, m.id, m.first_name, m.last_name, m.birth_date, m.gender::text,
+                           m.address, m.profession, m.phone_number, m.email, m.adhesion_date
+                    FROM mandate ma JOIN member_role mr ON ma.id = mr.mandate_id
+                    JOIN member m ON mr.member_id = m.id
+                    WHERE ma.collectivity_id = ? AND ma.end_date >= CURRENT_DATE
+                """;
         CollectivityStructure collectivityStructure = new CollectivityStructure();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, collectivityId);
@@ -188,5 +184,29 @@ public class CollectivityRepository {
             throw new RuntimeException("Failed to fetch structure", e);
         }
         return collectivityStructure;
+    }
+
+    public CollectivityIdentifier generateIdentifier() {
+        String sql = "SELECT nextval('collectivity_identifier_seq') AS seq";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                Integer seq = rs.getInt("seq");
+
+                String year = String.valueOf(java.time.Year.now().getValue());
+                String formattedSeq = String.format("%04d", seq);
+
+                String value = "COLLECTIVITY-" + year + "-" + formattedSeq;
+
+                CollectivityIdentifier identifier = new CollectivityIdentifier();
+                identifier.setNumero(seq);
+                identifier.setName(value);
+
+                return identifier;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
