@@ -1,19 +1,26 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
 import java.time.Instant;
+import java.util.List;
 
 public class Collectivity {
     private Integer id;
     private String name;
     private String location;
-    private final Instant creationDatetime;
+    private String speciality;
+    private Instant creationDate;
     private boolean federationApproval;
+    private List<Member> members;
+    private CollectivityStructure collectivityStructure;
 
-    public Collectivity(Integer id, String name, String location, Instant creationDatetime, boolean federationApproval) {
+    public Collectivity() {
+    }
+
+    public Collectivity(Integer id, String name, String location, Instant creationInstant, boolean federationApproval) {
         this.id = id;
         this.name = name;
         this.location = location;
-        this.creationDatetime = creationDatetime;
+        this.creationDate = creationInstant;
         this.federationApproval = federationApproval;
     }
 
@@ -41,8 +48,20 @@ public class Collectivity {
         this.location = location;
     }
 
-    public Instant getCreationDatetime() {
-        return creationDatetime;
+    public String getSpeciality() {
+        return speciality;
+    }
+
+    public void setSpeciality(String speciality) {
+        this.speciality = speciality;
+    }
+
+    public Instant getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Instant creationDate) {
+        this.creationDate = creationDate;
     }
 
     public boolean isFederationApproval() {
@@ -51,5 +70,21 @@ public class Collectivity {
 
     public void setFederationApproval(boolean federationApproval) {
         this.federationApproval = federationApproval;
+    }
+
+    public List<Member> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<Member> members) {
+        this.members = members;
+    }
+
+    public CollectivityStructure getStructure() {
+        return collectivityStructure;
+    }
+
+    public void setStructure(CollectivityStructure collectivityStructure) {
+        this.collectivityStructure = collectivityStructure;
     }
 }
