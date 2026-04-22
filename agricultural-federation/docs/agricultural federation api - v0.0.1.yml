@@ -7,7 +7,7 @@ info:
     - v0.0.1 (2026-04-21) : POST /collectivities for collectivities creation and POST /members for members creation.
   version: 0.0.1
 servers:
-  - url: 'https://localhost:8080'
+  - url: 'http://localhost:8080'
 paths:
   '/collectivities':
     post:
