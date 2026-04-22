@@ -1,9 +1,15 @@
 package org.agricultural.federation.agriculturalfederation.controller;
 
+import org.agricultural.federation.agriculturalfederation.entity.CreateCollectivity;
+import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
+import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
 import org.agricultural.federation.agriculturalfederation.service.CollectivityService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 public class CollectivityController {
@@ -13,11 +19,21 @@ public class CollectivityController {
         this.collectivityService = collectivityService;
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<?> test() {
-        var list = collectivityService.getAllCollectivity();
-        return ResponseEntity
-                .status(200)
-                .body(list);
+    @PostMapping("/collectivities")
+    public ResponseEntity<?> createCollectivity(@RequestBody List<CreateCollectivity> newCollectivity) {
+        try {
+            var list = collectivityService.createCollectivity(newCollectivity);
+            return ResponseEntity
+                    .status(201)
+                    .body(list);
+        } catch (BadRequestException e) {
+            return ResponseEntity
+                    .status(400)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity
+                    .status(404)
+                    .body(e.getMessage());
+        }
     }
 }
