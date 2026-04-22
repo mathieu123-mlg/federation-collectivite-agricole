@@ -205,6 +205,7 @@ public class CollectivityRepository {
 
                 return identifier;
             }
+            throw new RuntimeException("Failed to find collectivity identifier");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

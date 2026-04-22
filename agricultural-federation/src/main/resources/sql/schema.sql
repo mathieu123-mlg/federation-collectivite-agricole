@@ -9,23 +9,16 @@ create type activity_type_enum AS ENUM ('GENERAL_MEETING', 'TRAINING', 'EXCEPTIO
 create table if not exists collectivity
 (
     id                  serial PRIMARY KEY,
-    name                VARCHAR(100) UNIQUE NOT NULL,
-    location            VARCHA\c agricultural_federation
-create type gender_enum AS ENUM ('MALE', 'FEMALE');
-create type role_enum AS ENUM ('PRESIDENT','VICE_PRESIDENT','TREASURER','SECRETARY','SENIOR','JUNIOR');
-create type payment_type AS ENUM ('REGISTRATION', 'COTISATION');
-create type payment_method AS ENUM ('CASH', 'BANK_TRANSFER', 'MOBILE_MONEY');
-create type account_type_enum AS ENUM ('CASH', 'BANK', 'MOBILE_MONEY');
-create type activity_type_enum AS ENUM ('GENERAL_MEETING', 'TRAINING', 'EXCEPTIONAL');
+    location            VARCHAR(100) NOT NULL,
+    specialty           VARCHAR(100) NOT NULL,
+    creation_datetime   DATE         NOT NULL,
+    federation_approval BOOLEAN      NOT NULL
+);
 
-create table if not exists collectivity
+create table collectivity_identifier
 (
-    id                  serial PRIMARY KEY,
-    name                VARCHAR(100) UNIQUE NOT NULL,
-    location            VARCHAR(100)        NOT NULL,
-    specialty           VARCHAR(100)        NOT NULL,
-    creation_datetime       DATE                NOT NULL,
-    federation_approval BOOLEAN             NOT NULL
+    numero int unique          not null,
+    name   varchar(100) unique not null
 );
 
 create table if not exists member
@@ -52,7 +45,7 @@ create table if not exists member_collectivity
     id              serial PRIMARY KEY,
     member_id       serial NOT NULL REFERENCES member (id) ON DELETE CASCADE,
     collectivity_id serial NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    join_date       DATE NOT NULL,
+    join_date       DATE   NOT NULL,
     leave_date      DATE
 );
 
@@ -64,8 +57,8 @@ create table if not exists mandate
 (
     id              serial PRIMARY KEY,
     collectivity_id serial NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    start_date      DATE NOT NULL,
-    end_date        DATE NOT NULL
+    start_date      DATE   NOT NULL,
+    end_date        DATE   NOT NULL
 );
 
 -- =========================
@@ -74,8 +67,8 @@ create table if not exists mandate
 create table if not exists member_role
 (
     id         serial PRIMARY KEY,
-    member_id  serial      NOT NULL REFERENCES member (id) ON DELETE CASCADE,
-    mandate_id serial      NOT NULL REFERENCES mandate (id) ON DELETE CASCADE,
+    member_id  serial    NOT NULL REFERENCES member (id) ON DELETE CASCADE,
+    mandate_id serial    NOT NULL REFERENCES mandate (id) ON DELETE CASCADE,
     role       role_enum NOT NULL,
 
     -- Un seul rôle unique (président etc.) par mandat
@@ -89,8 +82,8 @@ create table if not exists member_role
 create table if not exists referee
 (
     id              serial PRIMARY KEY,
-    candidate_id    serial         NOT NULL REFERENCES member (id) ON DELETE CASCADE,
-    referee_id      serial         NOT NULL REFERENCES member (id) ON DELETE CASCADE,
+    candidate_id    serial       NOT NULL REFERENCES member (id) ON DELETE CASCADE,
+    referee_id      serial       NOT NULL REFERENCES member (id) ON DELETE CASCADE,
     collectivity_id serial REFERENCES collectivity (id),
     relationship    VARCHAR(100) NOT NULL
 );
@@ -102,7 +95,7 @@ create table if not exists referee
 create table if not exists payment
 (
     id             serial PRIMARY KEY,
-    member_id      serial           NOT NULL REFERENCES member (id) ON DELETE CASCADE,
+    member_id      serial         NOT NULL REFERENCES member (id) ON DELETE CASCADE,
     amount         DECIMAL(12, 2) NOT NULL,
     type           payment_type   NOT NULL,
     payment_method payment_method NOT NULL,
@@ -116,7 +109,7 @@ create table if not exists payment
 create table if not exists collectivity_account
 (
     id              serial PRIMARY KEY,
-    collectivity_id serial              NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
+    collectivity_id serial            NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
     type            account_type_enum NOT NULL,
     balance         DECIMAL(14, 2) DEFAULT 0,
     created_at      TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
@@ -129,7 +122,7 @@ create table if not exists collectivity_account
 create table if not exists activity
 (
     id              serial PRIMARY KEY,
-    collectivity_id serial               NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
+    collectivity_id serial             NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
     type            activity_type_enum NOT NULL,
     activity_date   DATE               NOT NULL,
     mandatory       BOOLEAN            NOT NULL
@@ -142,8 +135,8 @@ create table if not exists activity
 create table if not exists attendance
 (
     id          serial PRIMARY KEY,
-    activity_id serial    NOT NULL REFERENCES activity (id) ON DELETE CASCADE,
-    member_id   serial    NOT NULL REFERENCES member (id) ON DELETE CASCADE,
+    activity_id serial  NOT NULL REFERENCES activity (id) ON DELETE CASCADE,
+    member_id   serial  NOT NULL REFERENCES member (id) ON DELETE CASCADE,
     present     BOOLEAN NOT NULL,
     justified   BOOLEAN DEFAULT FALSE,
 
@@ -158,7 +151,9 @@ CREATE INDEX idx_member_collectivity_member ON member_collectivity (member_id);
 CREATE INDEX idx_member_collectivity_collectivity ON member_collectivity (collectivity_id);
 CREATE INDEX idx_payment_member ON payment (member_id);
 CREATE INDEX idx_attendance_activity ON attendance (activity_id);
-R(100)        NOT NULL,
+R
+    (100)
+    NOT NULL,
     specialty           VARCHAR(100)        NOT NULL,
     creation_datetime       DATE                NOT NULL,
     federation_approval BOOLEAN             NOT NULL
@@ -188,7 +183,7 @@ create table if not exists member_collectivity
     id              serial PRIMARY KEY,
     member_id       serial NOT NULL REFERENCES member (id) ON DELETE CASCADE,
     collectivity_id serial NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    join_date       DATE NOT NULL,
+    join_date       DATE   NOT NULL,
     leave_date      DATE
 );
 
@@ -200,8 +195,8 @@ create table if not exists mandate
 (
     id              serial PRIMARY KEY,
     collectivity_id serial NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    start_date      DATE NOT NULL,
-    end_date        DATE NOT NULL
+    start_date      DATE   NOT NULL,
+    end_date        DATE   NOT NULL
 );
 
 -- =========================
@@ -210,8 +205,8 @@ create table if not exists mandate
 create table if not exists member_role
 (
     id         serial PRIMARY KEY,
-    member_id  serial      NOT NULL REFERENCES member (id) ON DELETE CASCADE,
-    mandate_id serial      NOT NULL REFERENCES mandate (id) ON DELETE CASCADE,
+    member_id  serial    NOT NULL REFERENCES member (id) ON DELETE CASCADE,
+    mandate_id serial    NOT NULL REFERENCES mandate (id) ON DELETE CASCADE,
     role       role_enum NOT NULL,
 
     -- Un seul rôle unique (président etc.) par mandat
@@ -225,8 +220,8 @@ create table if not exists member_role
 create table if not exists referee
 (
     id              serial PRIMARY KEY,
-    candidate_id    serial         NOT NULL REFERENCES member (id) ON DELETE CASCADE,
-    referee_id      serial         NOT NULL REFERENCES member (id) ON DELETE CASCADE,
+    candidate_id    serial       NOT NULL REFERENCES member (id) ON DELETE CASCADE,
+    referee_id      serial       NOT NULL REFERENCES member (id) ON DELETE CASCADE,
     collectivity_id serial REFERENCES collectivity (id),
     relationship    VARCHAR(100) NOT NULL
 );
@@ -238,7 +233,7 @@ create table if not exists referee
 create table if not exists payment
 (
     id             serial PRIMARY KEY,
-    member_id      serial           NOT NULL REFERENCES member (id) ON DELETE CASCADE,
+    member_id      serial         NOT NULL REFERENCES member (id) ON DELETE CASCADE,
     amount         DECIMAL(12, 2) NOT NULL,
     type           payment_type   NOT NULL,
     payment_method payment_method NOT NULL,
@@ -252,7 +247,7 @@ create table if not exists payment
 create table if not exists collectivity_account
 (
     id              serial PRIMARY KEY,
-    collectivity_id serial              NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
+    collectivity_id serial            NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
     type            account_type_enum NOT NULL,
     balance         DECIMAL(14, 2) DEFAULT 0,
     created_at      TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
@@ -265,7 +260,7 @@ create table if not exists collectivity_account
 create table if not exists activity
 (
     id              serial PRIMARY KEY,
-    collectivity_id serial               NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
+    collectivity_id serial             NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
     type            activity_type_enum NOT NULL,
     activity_date   DATE               NOT NULL,
     mandatory       BOOLEAN            NOT NULL
@@ -278,8 +273,8 @@ create table if not exists activity
 create table if not exists attendance
 (
     id          serial PRIMARY KEY,
-    activity_id serial    NOT NULL REFERENCES activity (id) ON DELETE CASCADE,
-    member_id   serial    NOT NULL REFERENCES member (id) ON DELETE CASCADE,
+    activity_id serial  NOT NULL REFERENCES activity (id) ON DELETE CASCADE,
+    member_id   serial  NOT NULL REFERENCES member (id) ON DELETE CASCADE,
     present     BOOLEAN NOT NULL,
     justified   BOOLEAN DEFAULT FALSE,
 
