@@ -1,6 +1,7 @@
 package org.agricultural.federation.agriculturalfederation.service;
 
 import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
+import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
 import org.agricultural.federation.agriculturalfederation.entity.CollectivityStructure;
 import org.agricultural.federation.agriculturalfederation.entity.CreateCollectivity;
 import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
@@ -49,7 +50,7 @@ public class CollectivityService {
 
     private Collectivity buildCollectivityEntity(CreateCollectivity cc) {
         Collectivity c = new Collectivity();
-        c.setName(generateUniqueName(cc.getLocation()));
+        c.setIdentifier(generateIdentifier());
         c.setLocation(cc.getLocation());
         c.setSpeciality("General Agriculture");
         c.setCreationDate(Instant.now());
@@ -57,14 +58,12 @@ public class CollectivityService {
         return c;
     }
 
-    private String generateUniqueName(String location) {
-        String baseName = location + " Agricultural Collective";
-        String name = baseName;
-        int suffix = 1;
-        while (collectivityRepository.existsByName(name)) {
-            name = baseName + " " + suffix++;
+    private CollectivityIdentifier generateIdentifier() {
+        try {
+            return collectivityRepository.generateIdentifier();
+        } catch (RuntimeException e) {
+            throw new BadRequestException("Cannot generate collectivity identifier");
         }
-        return name;
     }
 
     private Collectivity saveCollectivity(Collectivity collectivity) {

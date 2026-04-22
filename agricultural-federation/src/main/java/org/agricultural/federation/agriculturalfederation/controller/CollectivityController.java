@@ -5,9 +5,7 @@ import org.agricultural.federation.agriculturalfederation.exception.BadRequestEx
 import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
 import org.agricultural.federation.agriculturalfederation.service.CollectivityService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,6 +24,26 @@ public class CollectivityController {
             return ResponseEntity
                     .status(201)
                     .body(list);
+        } catch (BadRequestException e) {
+            return ResponseEntity
+                    .status(400)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity
+                    .status(404)
+                    .body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/collectivities")
+    public ResponseEntity<?> generateIdentifier(
+            @RequestParam(required = false) Integer numero,
+            @RequestParam(required = false) String name
+    ) {
+        try {
+            return ResponseEntity
+                    .status(200)
+                    .body(collectivityService.generateIdentifier(numero, name));
         } catch (BadRequestException e) {
             return ResponseEntity
                     .status(400)

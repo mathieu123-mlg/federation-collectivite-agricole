@@ -186,24 +186,16 @@ public class CollectivityRepository {
         return collectivityStructure;
     }
 
-    public CollectivityIdentifier generateIdentifier() {
-        String sql = "SELECT nextval('collectivity_identifier_seq') AS seq";
+    public CollectivityIdentifier generateIdentifier(Integer numero, String name) {
+        String sql = "insert into collectivity_identifier (numero, name) values (default, ?) on conflict do nothing";
 
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                Integer seq = rs.getInt("seq");
-
-                String year = String.valueOf(java.time.Year.now().getValue());
-                String formattedSeq = String.format("%04d", seq);
-
-                String value = "COLLECTIVITY-" + year + "-" + formattedSeq;
-
-                CollectivityIdentifier identifier = new CollectivityIdentifier();
-                identifier.setNumero(seq);
-                identifier.setName(value);
-
-                return identifier;
+                return new CollectivityIdentifier(
+                        rs.getInt("numero"),
+                        rs.getString("name")
+                );
             }
             throw new RuntimeException("Failed to find collectivity identifier");
         } catch (SQLException e) {
