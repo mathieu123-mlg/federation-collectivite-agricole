@@ -5,7 +5,9 @@ create type payment_type AS ENUM ('REGISTRATION', 'COTISATION');
 create type payment_method AS ENUM ('CASH', 'BANK_TRANSFER', 'MOBILE_MONEY');
 create type account_type_enum AS ENUM ('CASH', 'BANK', 'MOBILE_MONEY');
 create type activity_type_enum AS ENUM ('GENERAL_MEETING', 'TRAINING', 'EXCEPTIONAL');
-
+-- NEW ENUMS
+create type frequency_enum AS ENUM ('WEEKLY', 'MONTHLY', 'ANNUALLY', 'PUNCTUALLY');
+create type activity_status_enum AS ENUM ('ACTIVE', 'INACTIVE');
 create table if not exists collectivity
 (
     id                  serial PRIMARY KEY,
@@ -87,6 +89,12 @@ create table if not exists collectivity_account
     type            account_type_enum NOT NULL,
     balance         DECIMAL(14, 2) DEFAULT 0,
     created_at      TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
+    collectivity_id serial          NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
+    eligible_from   DATE            NOT NULL,
+    frequency       frequency_enum  NOT NULL,
+    amount          DECIMAL(12, 2)  NOT NULL,
+    label           VARCHAR(100),
+    status          activity_status_enum NOT NULL DEFAULT 'ACTIVE'
 );
 
 create table if not exists activity
