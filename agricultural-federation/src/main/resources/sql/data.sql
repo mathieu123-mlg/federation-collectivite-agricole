@@ -1,7 +1,7 @@
 -- =========================
 -- 1. INSERTION DES COLLECTIVITÉS (coopératives agricoles)
 -- =========================
-INSERT INTO collectivity (name, location, specialty, creation_date, federation_approval)
+INSERT INTO collectivity (name, location, speciality, creation_datetime, federation_approval)
 VALUES ('Coopérative Agricole du Sud', 'Dakar, Sénégal', 'Maraîchage', '2015-03-15', TRUE),
        ('Union des Producteurs de Riz', 'Saint-Louis, Sénégal', 'Riziculture', '2018-06-20', TRUE),
        ('Coopérative Laitière de Kaolack', 'Kaolack, Sénégal', 'Élevage laitier', '2010-11-10', TRUE),

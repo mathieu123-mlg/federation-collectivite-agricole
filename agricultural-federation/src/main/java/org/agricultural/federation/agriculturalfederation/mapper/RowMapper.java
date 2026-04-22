@@ -14,6 +14,7 @@ public class RowMapper {
     public Collectivity mapToCollectivity(ResultSet rs) throws SQLException {
         Collectivity c = new Collectivity();
         c.setId(rs.getInt("id"));
+        c.setNumber(rs.getInt("number"));
         c.setName(rs.getString("name"));
         c.setLocation(rs.getString("location"));
         c.setSpeciality(rs.getString("speciality"));
