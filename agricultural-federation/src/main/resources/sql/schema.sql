@@ -185,7 +185,7 @@ create table if not exists member_collectivity
     id              serial PRIMARY KEY,
     member_id       serial NOT NULL REFERENCES member (id) ON DELETE CASCADE,
     collectivity_id serial NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    join_date       DATE   NOT NULL,
+    join_date       DATE NOT NULL,
     leave_date      DATE
 );
 
