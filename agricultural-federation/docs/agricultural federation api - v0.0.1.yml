@@ -61,6 +61,42 @@ paths:
             - Membership dues not paid or registration fee not paid.
         404:
           description: Either collectivity or member not found.
+  '/collectivities/{collectivityId}/assign-identity':
+    put:
+      summary: Assign number and name to a collectivity
+      parameters:
+        - name: collectivityId
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 2
+        - name: collectivityName
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "Collectivite Maize d'Antsirabe"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignIdentity'
+            example:
+              number: 2
+              name: "Collectivite Maize d'Antsirabe"
+      responses:
+        200:
+          description: Collectivity with assigned number and name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collectivity'
+        400:
+          description: Collectivity already has an assigned number or name.
+        404:
+          description: Collectivity not found.
 components:
   schemas:
     CreateCollectivity:
@@ -71,8 +107,7 @@ components:
         members:
           type: array
           items:
-            schema:
-              $ref: '#/components/schemas/MemberIdentifier'
+            $ref: '#/components/schemas/MemberIdentifier'
         federationApproval:
           type: boolean
         structure:
@@ -104,6 +139,14 @@ components:
       properties:
         id:
           type: string
+        number:
+          type: integer
+          description: Unique number assigned to a collectivity by the federation.
+          example: 1
+        name:
+          type: string
+          description: Unique name assigned to a collectivity by the federation.
+          example: "Collectivite Rizicole d'Ambatondrazaka"
         location:
           type: string
         structure:
@@ -146,7 +189,7 @@ components:
         profession:
           type: string
         phoneNumber:
-          type: int
+          type: integer
         email:
           type: string
         occupation:
@@ -176,3 +219,14 @@ components:
         - TREASURER
         - VICE_PRESIDENT
         - PRESIDENT
+    AssignIdentity:
+      type: object
+      properties:
+        number:
+          type: integer
+          description: Unique number assigned to a collectivity by the federation.
+          example: 1
+        name:
+          type: string
+          description: Unique name assigned to a collectivity by the federation.
+          example: "Collectivite Rizicole d'Ambatondrazaka"
