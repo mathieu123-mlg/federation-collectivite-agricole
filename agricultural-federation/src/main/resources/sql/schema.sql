@@ -9,6 +9,7 @@ create type activity_type_enum AS ENUM ('GENERAL_MEETING', 'TRAINING', 'EXCEPTIO
 create table if not exists collectivity
 (
     id                  serial PRIMARY KEY,
+    collectivity_id int references collectivity_identifier(id) ,
     location            VARCHAR(100) NOT NULL,
     specialty           VARCHAR(100) NOT NULL,
     creation_datetime   DATE         NOT NULL,
@@ -17,6 +18,7 @@ create table if not exists collectivity
 
 create table collectivity_identifier
 (
+    id serial primary key,
     numero int unique          not null,
     name   varchar(100) unique not null
 );
