@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Collectivity {
     private Integer id;
-    private String name;
+    private CollectivityIdentifier identifier;
     private String location;
     private String speciality;
     private Instant creationDate;
@@ -16,9 +16,9 @@ public class Collectivity {
     public Collectivity() {
     }
 
-    public Collectivity(Integer id, String name, String location, Instant creationInstant, boolean federationApproval) {
+    public Collectivity(Integer id, CollectivityIdentifier identifier, String location, Instant creationInstant, boolean federationApproval) {
         this.id = id;
-        this.name = name;
+        this.identifier = identifier;
         this.location = location;
         this.creationDate = creationInstant;
         this.federationApproval = federationApproval;
@@ -32,12 +32,12 @@ public class Collectivity {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public CollectivityIdentifier getName() {
+        return identifier;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(CollectivityIdentifier identifier) {
+        this.identifier = identifier;
     }
 
     public String getLocation() {
