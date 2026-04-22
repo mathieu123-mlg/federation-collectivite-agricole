@@ -4,10 +4,15 @@ import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
 import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
 import org.agricultural.federation.agriculturalfederation.entity.CollectivityStructure;
 import org.agricultural.federation.agriculturalfederation.entity.Member;
+import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
 import org.agricultural.federation.agriculturalfederation.mapper.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -186,20 +191,39 @@ public class CollectivityRepository {
         return collectivityStructure;
     }
 
-    public CollectivityIdentifier generateIdentifier(Integer numero, String name) {
-        String sql = "insert into collectivity_identifier (numero, name) values (?, ?) on conflict do nothing";
+    public Optional<Collectivity> findCollectivityById(Integer id) {
+        String sql = """
+                    SELECT id, number, name, location, speciality, creation_datetime, federation_approval
+                    FROM collectivity
+                    WHERE id = ?
+                """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, numero);
-            ps.setString(2, name);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return new CollectivityIdentifier(
-                        rs.getInt("numero"),
-                        rs.getString("name")
-                );
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Collectivity collectivity = rowMapper.mapToCollectivity(rs);
+                    return Optional.of(collectivity);
+                }
             }
-            throw new RuntimeException("Failed to find collectivity identifier");
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch collectivity by id", e);
+        }
+
+        return Optional.empty();
+    }
+
+    public void assignCollectivityIdentifier(Integer collectivityId, Integer number, String name) {
+        String sql = """
+                update collectivity set number = ?, name = ?, updated_at = current_timestamp
+                where id = ? and updated_at is null""";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, number);
+            ps.setString(2, name);
+            ps.setInt(3, collectivityId);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

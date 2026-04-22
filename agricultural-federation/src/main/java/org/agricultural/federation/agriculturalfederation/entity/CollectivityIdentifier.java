@@ -1,11 +1,11 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
 public class CollectivityIdentifier {
-    private Integer numero;
+    private Integer number;
     private String name;
 
-    public CollectivityIdentifier(Integer numero, String name) {
-        this.numero = numero;
+    public CollectivityIdentifier(Integer number, String name) {
+        this.number = number;
         this.name = name;
     }
 
@@ -13,11 +13,11 @@ public class CollectivityIdentifier {
     }
 
     public Integer getNumber() {
-        return numero;
+        return number;
     }
 
-    public void setNumero(Integer numero) {
-        this.numero = numero;
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 
     public String getName() {

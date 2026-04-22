@@ -1,7 +1,11 @@
 package org.agricultural.federation.agriculturalfederation.controller;
 
+<<<<<<< HEAD
 import java.util.List;
 
+=======
+import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
+>>>>>>> d26c5ed69d35ab5ae93a26a030828d77d4d3c39e
 import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
 import org.agricultural.federation.agriculturalfederation.entity.CreateCollectivity;
 import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
@@ -40,16 +44,18 @@ public class CollectivityController {
         }
     }
 
-    @PutMapping("/collectivities")
-    public ResponseEntity<?> generateIdentifier(
+    @PutMapping("/collectivities/{collectivityId}/assign-identity")
+    public ResponseEntity<?> assignCollectivityIdentifier(
+            @PathVariable Integer collectivityId,
             @RequestBody CollectivityIdentifier collectivityIdentifier
     ) {
         try {
             Integer number = collectivityIdentifier.getNumber();
             String name = collectivityIdentifier.getName();
+            Collectivity collectivityWithIdentifier = collectivityService.assignCollectivityIdentifier(collectivityId, number, name);
             return ResponseEntity
                     .status(200)
-                    .body(collectivityService.generateIdentifier(number, name));
+                    .body(collectivityWithIdentifier);
         } catch (BadRequestException e) {
             return ResponseEntity
                     .status(400)

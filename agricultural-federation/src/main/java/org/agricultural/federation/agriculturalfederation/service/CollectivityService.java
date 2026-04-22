@@ -19,7 +19,7 @@ public class CollectivityService {
     private final CollectivityRepository collectivityRepository;
     private final CollectivityValidator collectivityValidator;
 
-    public CollectivityService(CollectivityRepository collectivityRepository,  CollectivityValidator collectivityValidator) {
+    public CollectivityService(CollectivityRepository collectivityRepository, CollectivityValidator collectivityValidator) {
         this.collectivityRepository = collectivityRepository;
         this.collectivityValidator = collectivityValidator;
     }
@@ -57,15 +57,12 @@ public class CollectivityService {
         return c;
     }
 
-    public CollectivityIdentifier generateIdentifier(Integer numero, String name) {
-        if (numero == null || name == null || numero <= 0) {
-            throw new BadRequestException("Numero or Name not accepted");
-        }
-        try {
-            return collectivityRepository.generateIdentifier(numero, name);
-        } catch (RuntimeException e) {
-            throw new BadRequestException("Cannot generate collectivity identifier");
-        }
+    public Collectivity assignCollectivityIdentifier(Integer collectivityId, Integer number, String name) {
+        collectivityRepository.assignCollectivityIdentifier(collectivityId, number, name);
+
+        return collectivityRepository.findCollectivityById(collectivityId).orElseThrow(
+                () -> new NotFoundException("Collectivity.id={"+collectivityId+") is not found or already updated")
+        );
     }
 
     private Collectivity saveCollectivity(Collectivity collectivity) {

@@ -5,7 +5,8 @@ import java.util.List;
 
 public class Collectivity {
     private Integer id;
-    private CollectivityIdentifier identifier;
+    private Integer number;
+    private String name;
     private String location;
     private String speciality;
     private Instant creationDate;
@@ -16,12 +17,16 @@ public class Collectivity {
     public Collectivity() {
     }
 
-    public Collectivity(Integer id, CollectivityIdentifier identifier, String location, Instant creationInstant, boolean federationApproval) {
+    public Collectivity(Integer id, Integer number, String name, String location, String speciality, Instant creationDate, boolean federationApproval, List<Member> members, CollectivityStructure collectivityStructure) {
         this.id = id;
-        this.identifier = identifier;
+        this.number = number;
+        this.name = name;
         this.location = location;
-        this.creationDate = creationInstant;
+        this.speciality = speciality;
+        this.creationDate = creationDate;
         this.federationApproval = federationApproval;
+        this.members = members;
+        this.collectivityStructure = collectivityStructure;
     }
 
     public Integer getId() {
@@ -32,12 +37,16 @@ public class Collectivity {
         this.id = id;
     }
 
-    public CollectivityIdentifier getIdentifier() {
-        return identifier;
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 
-    public void setIdentifier(CollectivityIdentifier identifier) {
-        this.identifier = identifier;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCollectivityStructure(CollectivityStructure collectivityStructure) {
+        this.collectivityStructure = collectivityStructure;
     }
 
     public String getLocation() {
