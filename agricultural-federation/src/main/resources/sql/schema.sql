@@ -12,17 +12,13 @@ create table if not exists collectivity
     number              int          not null,
     name                varchar(100) not null,
     location            VARCHAR(100) NOT NULL,
-    specialty           VARCHAR(100) NOT NULL,
+    speciality           VARCHAR(100) NOT NULL,
     creation_datetime   timestamp    NOT NULL,
     federation_approval BOOLEAN      NOT NULL,
     constraint unique_number_name unique (number, name),
     created_at          timestamp    not null default current_timestamp,
     updated_at          timestamp default null
 );
-
-alter table collectivity add column created_at timestamp    not null default current_timestamp;
-alter table collectivity add column updated_at timestamp    not null default null;
-
 
 create table if not exists member
 (
