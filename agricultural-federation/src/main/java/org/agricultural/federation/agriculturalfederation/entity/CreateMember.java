@@ -1,42 +1,21 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
-import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 
-public class Member {
-    private Integer id;
+public class CreateMember {
     private String firstName;
     private String lastName;
-    private Instant birthDate;
+    private LocalDate birthDate;
     private Gender gender;
     private String address;
     private String profession;
     private String phoneNumber;
     private String email;
-    private Instant adhesionDate;
-
-    
-
-    public Member(Integer id, String firstName, String lastName, Instant birthDate, Gender gender, String address,
-            String profession, String phoneNumber, String email, Instant adhesionDate) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.address = address;
-        this.profession = profession;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.adhesionDate = adhesionDate;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    private Integer collectivityId;
+    private List<Referee> referees;
+    private boolean registrationFeePaid;
+    private boolean membershipDuesPaid;
 
     public String getFirstName() {
         return firstName;
@@ -54,11 +33,11 @@ public class Member {
         this.lastName = lastName;
     }
 
-    public Instant getBirthDate() {
+    public LocalDate getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(Instant birthDate) {
+    public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
     }
 
@@ -102,13 +81,35 @@ public class Member {
         this.email = email;
     }
 
-    public Instant getAdhesionDate() {
-        return adhesionDate;
+    public Integer getCollectivityId() {
+        return collectivityId;
     }
 
-    public void setAdhesionDate(Instant adhesionDate) {
-        this.adhesionDate = adhesionDate;
+    public void setCollectivityId(Integer collectivityId) {
+        this.collectivityId = collectivityId;
     }
 
+    public List<Referee> getReferees() {
+        return referees;
+    }
 
+    public void setReferees(List<Referee> referees) {
+        this.referees = referees;
+    }
+
+    public boolean isRegistrationFeePaid() {
+        return registrationFeePaid;
+    }
+
+    public void setRegistrationFeePaid(boolean registrationFeePaid) {
+        this.registrationFeePaid = registrationFeePaid;
+    }
+
+    public boolean isMembershipDuesPaid() {
+        return membershipDuesPaid;
+    }
+
+    public void setMembershipDuesPaid(boolean membershipDuesPaid) {
+        this.membershipDuesPaid = membershipDuesPaid;
+    }
 }
