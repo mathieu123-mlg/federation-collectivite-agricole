@@ -5,24 +5,21 @@ create type payment_type AS ENUM ('REGISTRATION', 'COTISATION');
 create type payment_method AS ENUM ('CASH', 'BANK_TRANSFER', 'MOBILE_MONEY');
 create type account_type_enum AS ENUM ('CASH', 'BANK', 'MOBILE_MONEY');
 create type activity_type_enum AS ENUM ('GENERAL_MEETING', 'TRAINING', 'EXCEPTIONAL');
--- NEW ENUMS 
+-- NEW ENUMS
 create type frequency_enum AS ENUM ('WEEKLY', 'MONTHLY', 'ANNUALLY', 'PUNCTUALLY');
 create type activity_status_enum AS ENUM ('ACTIVE', 'INACTIVE');
 create table if not exists collectivity
 (
     id                  serial PRIMARY KEY,
-    collectivity_id int references collectivity_identifier(id) ,
+    number              int          not null,
+    name                varchar(100) not null,
     location            VARCHAR(100) NOT NULL,
-    specialty           VARCHAR(100) NOT NULL,
-    creation_datetime   DATE         NOT NULL,
-    federation_approval BOOLEAN      NOT NULL
-);
-
-create table collectivity_identifier
-(
-    id serial primary key,
-    numero int unique          not null,
-    name   varchar(100) unique not null
+    speciality           VARCHAR(100) NOT NULL,
+    creation_datetime   timestamp    NOT NULL,
+    federation_approval BOOLEAN      NOT NULL,
+    constraint unique_number_name unique (number, name),
+    created_at          timestamp    not null default current_timestamp,
+    updated_at          timestamp default null
 );
 
 create table if not exists member
@@ -36,38 +33,26 @@ create table if not exists member
     profession    VARCHAR(100),
     phone_number  VARCHAR(20),
     email         VARCHAR(100) UNIQUE,
-    adhesion_date DATE         NOT NULL
+    adhesion_date timestamp    NOT NULL
 );
-
--- =========================
--- TABLE: member_collectivity
--- (historique des affiliations)
--- =========================
 
 create table if not exists member_collectivity
 (
     id              serial PRIMARY KEY,
-    member_id       serial NOT NULL REFERENCES member (id) ON DELETE CASCADE,
-    collectivity_id serial NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    join_date       DATE   NOT NULL,
-    leave_date      DATE
+    member_id       serial    NOT NULL REFERENCES member (id) ON DELETE CASCADE,
+    collectivity_id serial    NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
+    join_date       timestamp NOT NULL,
+    leave_date      timestamp
 );
-
--- =========================
--- TABLE: mandate
--- =========================
 
 create table if not exists mandate
 (
     id              serial PRIMARY KEY,
-    collectivity_id serial NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    start_date      DATE   NOT NULL,
-    end_date        DATE   NOT NULL
+    collectivity_id serial    NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
+    start_date      timestamp NOT NULL,
+    end_date        timestamp NOT NULL
 );
 
--- =========================
--- TABLE: member_role
--- =========================
 create table if not exists member_role
 (
     id         serial PRIMARY KEY,
@@ -75,13 +60,8 @@ create table if not exists member_role
     mandate_id serial    NOT NULL REFERENCES mandate (id) ON DELETE CASCADE,
     role       role_enum NOT NULL,
 
-    -- Un seul rôle unique (président etc.) par mandat
     CONSTRAINT unique_role_per_mandate UNIQUE (mandate_id, role, member_id)
 );
-
--- =========================
--- TABLE: referee (parrainage)
--- =========================
 
 create table if not exists referee
 (
@@ -91,10 +71,6 @@ create table if not exists referee
     collectivity_id serial REFERENCES collectivity (id),
     relationship    VARCHAR(100) NOT NULL
 );
-
--- =========================
--- TABLE: payment
--- =========================
 
 create table if not exists payment
 (
@@ -106,10 +82,6 @@ create table if not exists payment
     payment_date   TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- =========================
--- TABLE: collectivity_account
--- =========================
-
 create table if not exists collectivity_account
 (
     id              serial PRIMARY KEY,
@@ -117,24 +89,22 @@ create table if not exists collectivity_account
     type            account_type_enum NOT NULL,
     balance         DECIMAL(14, 2) DEFAULT 0,
     created_at      TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
+    collectivity_id serial          NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
+    eligible_from   DATE            NOT NULL,
+    frequency       frequency_enum  NOT NULL,
+    amount          DECIMAL(12, 2)  NOT NULL,
+    label           VARCHAR(100),
+    status          activity_status_enum NOT NULL DEFAULT 'ACTIVE'
 );
-
--- =========================
--- TABLE: activity
--- =========================
 
 create table if not exists activity
 (
     id              serial PRIMARY KEY,
     collectivity_id serial             NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
     type            activity_type_enum NOT NULL,
-    activity_date   DATE               NOT NULL,
+    activity_date   timestamp          NOT NULL,
     mandatory       BOOLEAN            NOT NULL
 );
-
--- =========================
--- TABLE: attendance
--- =========================
 
 create table if not exists attendance
 (
@@ -146,22 +116,6 @@ create table if not exists attendance
 
     UNIQUE (activity_id, member_id)
 );
--- =========================
--- TABLE: membership fee
--- =========================
-create table if not exists membership_fee
-(
-    id              serial PRIMARY KEY,
-    collectivity_id serial          NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    eligible_from   DATE            NOT NULL,
-    frequency       frequency_enum  NOT NULL,
-    amount          DECIMAL(12, 2)  NOT NULL,
-    label           VARCHAR(100),
-    status          activity_status_enum NOT NULL DEFAULT 'ACTIVE'
-);
--- =========================
--- INDEX (performance)
--- =========================
 
 CREATE INDEX idx_member_collectivity_member ON member_collectivity (member_id);
 CREATE INDEX idx_member_collectivity_collectivity ON member_collectivity (collectivity_id);
