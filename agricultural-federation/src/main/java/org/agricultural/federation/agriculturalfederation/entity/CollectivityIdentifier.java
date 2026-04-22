@@ -12,7 +12,7 @@ public class CollectivityIdentifier {
     public CollectivityIdentifier() {
     }
 
-    public Integer getNumero() {
+    public Integer getNumber() {
         return numero;
     }
 
