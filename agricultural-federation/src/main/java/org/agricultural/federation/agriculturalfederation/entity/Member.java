@@ -14,17 +14,20 @@ public class Member {
     private String email;
     private Instant adhesionDate;
 
-    public Member(String address, Instant adhesionDate, Instant birthDate, String email, String firstName, Gender gender, Integer id, String lastName, String phoneNumber, String profession) {
-        this.address = address;
-        this.adhesionDate = adhesionDate;
-        this.birthDate = birthDate;
-        this.email = email;
-        this.firstName = firstName;
-        this.gender = gender;
+    
+
+    public Member(Integer id, String firstName, String lastName, Instant birthDate, Gender gender, String address,
+            String profession, String phoneNumber, String email, Instant adhesionDate) {
         this.id = id;
+        this.firstName = firstName;
         this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
+        this.birthDate = birthDate;
+        this.gender = gender;
+        this.address = address;
         this.profession = profession;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.adhesionDate = adhesionDate;
     }
 
     public Integer getId() {
