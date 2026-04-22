@@ -204,4 +204,15 @@ public class CollectivityRepository {
             throw new RuntimeException(e);
         }
     }
+    public boolean existsById(Integer id) {
+        String sql = "SELECT 1 FROM membership_fee WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
