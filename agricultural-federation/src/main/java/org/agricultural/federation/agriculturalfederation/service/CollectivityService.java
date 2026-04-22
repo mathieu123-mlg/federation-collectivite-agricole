@@ -50,7 +50,6 @@ public class CollectivityService {
 
     private Collectivity buildCollectivityEntity(CreateCollectivity cc) {
         Collectivity c = new Collectivity();
-        c.setIdentifier(generateIdentifier());
         c.setLocation(cc.getLocation());
         c.setSpeciality("General Agriculture");
         c.setCreationDate(Instant.now());
@@ -58,9 +57,12 @@ public class CollectivityService {
         return c;
     }
 
-    private CollectivityIdentifier generateIdentifier() {
+    public CollectivityIdentifier generateIdentifier(Integer numero, String name) {
+        if (numero == null || name == null || numero <= 0) {
+            throw new BadRequestException("Numero or Name not accepted");
+        }
         try {
-            return collectivityRepository.generateIdentifier();
+            return collectivityRepository.generateIdentifier(numero, name);
         } catch (RuntimeException e) {
             throw new BadRequestException("Cannot generate collectivity identifier");
         }

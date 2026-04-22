@@ -9,6 +9,9 @@ public class CollectivityIdentifier {
         this.name = name;
     }
 
+    public CollectivityIdentifier() {
+    }
+
     public Integer getNumero() {
         return numero;
     }

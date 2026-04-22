@@ -187,10 +187,12 @@ public class CollectivityRepository {
     }
 
     public CollectivityIdentifier generateIdentifier(Integer numero, String name) {
-        String sql = "insert into collectivity_identifier (numero, name) values (default, ?) on conflict do nothing";
+        String sql = "insert into collectivity_identifier (numero, name) values (?, ?) on conflict do nothing";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, numero);
+            ps.setString(2, name);
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return new CollectivityIdentifier(
                         rs.getInt("numero"),
