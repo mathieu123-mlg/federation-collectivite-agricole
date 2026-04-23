@@ -18,7 +18,7 @@ public class RowMapper {
         c.setName(rs.getString("name"));
         c.setLocation(rs.getString("location"));
         c.setSpeciality(rs.getString("speciality"));
-        c.setCreationDate(rs.getTimestamp("creation_datetime").toInstant());
+        c.setCreationDate(rs.getTimestamp("created_at").toInstant());
         c.setFederationApproval(rs.getBoolean("federation_approval"));
         return c;
     }

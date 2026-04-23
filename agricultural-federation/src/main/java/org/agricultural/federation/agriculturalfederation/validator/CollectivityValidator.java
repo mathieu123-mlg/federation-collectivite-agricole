@@ -7,6 +7,7 @@ import org.agricultural.federation.agriculturalfederation.exception.NotFoundExce
 import org.agricultural.federation.agriculturalfederation.repository.CollectivityRepository;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.HashSet;
@@ -72,5 +73,20 @@ public class CollectivityValidator {
         return collectivityRepository.findMemberAdhesionDate(memberId)
                 .map(date -> Period.between(date, LocalDate.now()).toTotalMonths() >= 6)
                 .orElse(false);
+    }
+
+    public void validateCollectivityTransaction(Integer id, Instant from, Instant to) {
+        if (id == null) {
+            throw new BadRequestException("CollectivityTransaction.id cannot be null");
+        }
+        if (from == null) {
+            throw new BadRequestException("CollectivityTransaction.id cannot be null");
+        }
+        if (to == null) {
+            throw new BadRequestException("CollectivityTransaction.id cannot be null");
+        }
+        if (from.isAfter(to)) {
+            throw new BadRequestException("CollectivityTransaction.from must before to");
+        }
     }
 }

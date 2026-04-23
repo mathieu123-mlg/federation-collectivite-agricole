@@ -3,19 +3,21 @@ package org.agricultural.federation.agriculturalfederation.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.agricultural.federation.agriculturalfederation.entity.CreateMember;
-import org.agricultural.federation.agriculturalfederation.entity.Member;
-import org.agricultural.federation.agriculturalfederation.entity.Referee;
+import org.agricultural.federation.agriculturalfederation.entity.*;
 import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
 import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
+import org.agricultural.federation.agriculturalfederation.repository.CollectivityRepository;
 import org.agricultural.federation.agriculturalfederation.repository.MemberRepository;
 import org.springframework.stereotype.Service;
+
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final CollectivityRepository collectivityRepository;
 
-    public MemberService(MemberRepository memberRepository) {
+    public MemberService(MemberRepository memberRepository, CollectivityRepository collectivityRepository) {
         this.memberRepository = memberRepository;
+        this.collectivityRepository = collectivityRepository;
     }
 
     public List<Member> createMembers(List<CreateMember> newMembers) {
@@ -93,5 +95,12 @@ public class MemberService {
                 "Number of referees from target collectivity must be >= " +
                 "referees from other collectivities.");
         }
+    }
+
+    public List<MemberPayment> createMembersPayments(Integer id, List<CreateMemberPayment> createMembersPayments) {
+        if (id == null) {
+            throw new BadRequestException("MemberPayment.id cannot be null");
+        }
+        return collectivityRepository.createMembersPayments(id, createMembersPayments);
     }
 }

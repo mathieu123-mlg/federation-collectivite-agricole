@@ -1,9 +1,6 @@
 package org.agricultural.federation.agriculturalfederation.service;
 
-import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
-import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
-import org.agricultural.federation.agriculturalfederation.entity.CollectivityStructure;
-import org.agricultural.federation.agriculturalfederation.entity.CreateCollectivity;
+import org.agricultural.federation.agriculturalfederation.entity.*;
 import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
 import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
 import org.agricultural.federation.agriculturalfederation.repository.CollectivityRepository;
@@ -97,5 +94,10 @@ public class CollectivityService {
     private Collectivity enrichCollectivityWithDetails(Integer id) {
         return collectivityRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new NotFoundException("Created collectivity not found"));
+    }
+
+    public List<CollectivityTransaction> getCollectivityTransaction(Integer id, Instant from, Instant to) {
+        collectivityValidator.validateCollectivityTransaction(id, from, to);
+        return collectivityRepository.getTransaction(id, from, to);
     }
 }

@@ -24,7 +24,7 @@ public class MemberRepository {
 
     public Member save(CreateMember cm) {
         String sql = """
-            INSERT INTO member 
+            INSERT INTO member
             (first_name, last_name, birth_date, gender, address, 
              profession, phone_number, email, adhesion_date)
             VALUES (?, ?, ?, ?::gender_enum, ?, ?, ?, ?, ?)
@@ -70,7 +70,7 @@ public class MemberRepository {
 
     public void saveMemberCollectivity(Integer memberId, Integer collectivityId) {
         String sql = """
-            INSERT INTO member_collectivity 
+            INSERT INTO member_collectivity
             (member_id, collectivity_id, join_date)
             VALUES (?, ?, ?)
             """;

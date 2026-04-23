@@ -9,9 +9,10 @@ import java.util.List;
 
 import org.agricultural.federation.agriculturalfederation.entity.CreateMembershipFee;
 import org.agricultural.federation.agriculturalfederation.entity.MembershipFee;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class MembershipFeeRepository {
-
     private final Connection connection;
 
     public MembershipFeeRepository(Connection connection) {

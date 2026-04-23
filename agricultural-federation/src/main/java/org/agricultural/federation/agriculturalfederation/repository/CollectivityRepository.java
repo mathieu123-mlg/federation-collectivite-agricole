@@ -1,18 +1,13 @@
 package org.agricultural.federation.agriculturalfederation.repository;
 
 import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
-import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
 import org.agricultural.federation.agriculturalfederation.entity.CollectivityStructure;
+import org.agricultural.federation.agriculturalfederation.entity.CollectivityTransaction;
 import org.agricultural.federation.agriculturalfederation.entity.Member;
-import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
 import org.agricultural.federation.agriculturalfederation.mapper.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -31,13 +26,16 @@ public class CollectivityRepository {
 
     public Optional<Collectivity> save(Collectivity collectivity) {
         String sql = """
-                INSERT INTO collectivity (location, speciality, creation_datetime, federation_approval)
-                VALUES (?, ?, ?, ?, ?) RETURNING id""";
+                INSERT INTO collectivity (number, name, location, speciality, created_at, federation_approval)
+                VALUES ((select coalesce(max(number) + 1, 1) from collectivity),
+                        ?, ?, ?, ?, ?) RETURNING id;
+                """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, collectivity.getLocation());
-            ps.setString(2, collectivity.getSpeciality());
-            ps.setTimestamp(3, Timestamp.from(collectivity.getCreationDate()));
-            ps.setBoolean(4, collectivity.isFederationApproval());
+            ps.setString(1, "coll-" + collectivity.getId() + "-" + collectivity.getSpeciality() + "-" + collectivity.getCreationDatetime());
+            ps.setString(2, collectivity.getLocation());
+            ps.setString(3, collectivity.getSpeciality());
+            ps.setTimestamp(4, Timestamp.from(collectivity.getCreationDatetime()));
+            ps.setBoolean(5, collectivity.isFederationApproval());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     collectivity.setId(rs.getInt("id"));
@@ -126,7 +124,7 @@ public class CollectivityRepository {
 
     public Optional<Collectivity> findByIdWithDetails(Integer id) {
         String sql = """
-                SELECT id, name, location, speciality, creation_datetime, federation_approval
+                SELECT id, name, location, speciality, created_at, federation_approval
                 FROM collectivity WHERE id = ?""";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -193,7 +191,7 @@ public class CollectivityRepository {
 
     public Optional<Collectivity> findCollectivityById(Integer id) {
         String sql = """
-                    SELECT id, number, name, location, speciality, creation_datetime, federation_approval
+                    SELECT id, number, name, location, speciality, created_at, federation_approval
                     FROM collectivity
                     WHERE id = ?
                 """;
@@ -228,6 +226,7 @@ public class CollectivityRepository {
             throw new RuntimeException(e);
         }
     }
+
     public boolean existsById(Integer id) {
         String sql = "SELECT 1 FROM membership_fee WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -238,5 +237,9 @@ public class CollectivityRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<CollectivityTransaction> getTransaction(Integer id, Instant from, Instant to) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
