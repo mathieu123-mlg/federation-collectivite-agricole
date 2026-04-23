@@ -1,6 +1,9 @@
 package org.agricultural.federation.agriculturalfederation.service;
 
-import org.agricultural.federation.agriculturalfederation.entity.*;
+import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
+import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
+import org.agricultural.federation.agriculturalfederation.entity.CollectivityStructure;
+import org.agricultural.federation.agriculturalfederation.entity.CreateCollectivity;
 import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
 import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
 import org.agricultural.federation.agriculturalfederation.repository.CollectivityRepository;

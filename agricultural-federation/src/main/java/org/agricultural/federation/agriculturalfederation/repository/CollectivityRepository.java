@@ -31,11 +31,10 @@ public class CollectivityRepository {
                         ?, ?, ?, ?, ?) RETURNING id;
                 """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, "coll-" + collectivity.getId() + "-" + collectivity.getSpeciality() + "-" + collectivity.getCreationDate());
-            ps.setString(2, collectivity.getLocation());
-            ps.setString(3, collectivity.getSpeciality());
-            ps.setTimestamp(4, Timestamp.from(collectivity.getCreationDate()));
-            ps.setBoolean(5, collectivity.isFederationApproval());
+            ps.setString(1, collectivity.getLocation());
+            ps.setString(2, collectivity.getSpeciality());
+            ps.setTimestamp(3, Timestamp.from(collectivity.getCreationDate()));
+            ps.setBoolean(4, collectivity.isFederationApproval());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     collectivity.setId(rs.getInt("id"));

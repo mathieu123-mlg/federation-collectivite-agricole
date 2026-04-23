@@ -15,6 +15,7 @@ import java.util.List;
 
 @RestController
 public class MembershipFeeController {
+
     private final MembershipFeeService membershipFeeService;
 
     public MembershipFeeController(MembershipFeeService membershipFeeService) {
