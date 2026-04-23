@@ -74,12 +74,14 @@ create table if not exists referee
 
 create table if not exists payment
 (
-    id             serial PRIMARY KEY,
-    member_id      serial         NOT NULL REFERENCES member (id) ON DELETE CASCADE,
-    amount         DECIMAL(12, 2) NOT NULL,
-    type           payment_type   NOT NULL,
-    payment_method payment_method NOT NULL,
-    payment_date   TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id                      serial PRIMARY KEY,
+    member_id               serial         NOT NULL REFERENCES member (id) ON DELETE CASCADE,
+    amount                  DECIMAL(12, 2) NOT NULL,
+    type                    payment_type   NOT NULL,
+    payment_method          payment_method NOT NULL,
+    payment_date            TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    membership_fee_id       INT            NULL,
+    collectivity_account_id INT            NULL REFERENCES collectivity_account (id)
 );
 
 create table if not exists collectivity_account
@@ -91,16 +93,6 @@ create table if not exists collectivity_account
     created_at      TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
 );
 
-create table membership_fee
-(
-    id              serial PRIMARY KEY,
-    collectivity_id serial               NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    eligible_from   DATE                 NOT NULL,
-    frequency       frequency_enum       NOT NULL,
-    amount          DECIMAL(12, 2)       NOT NULL,
-    label           VARCHAR(100),
-    status          activity_status_enum NOT NULL DEFAULT 'ACTIVE'
-);
 
 create table if not exists activity
 (

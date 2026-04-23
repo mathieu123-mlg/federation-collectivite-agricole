@@ -3,6 +3,7 @@ package org.agricultural.federation.agriculturalfederation.mapper;
 import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
 import org.agricultural.federation.agriculturalfederation.entity.Gender;
 import org.agricultural.federation.agriculturalfederation.entity.Member;
+import org.agricultural.federation.agriculturalfederation.entity.PaymentMode;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
@@ -36,5 +37,14 @@ public class RowMapper {
                 rs.getString("email"),
                 rs.getDate("adhesion_date").toLocalDate().atStartOfDay().toInstant(java.time.ZoneOffset.UTC)
         );
+    }
+
+    public PaymentMode mapPaymentMode(String dbValue) {
+        return switch (dbValue) {
+            case "CASH" -> PaymentMode.CASH;
+            case "BANK_TRANSFER" -> PaymentMode.BANK_TRANSFER;
+            case "MOBILE_MONEY" -> PaymentMode.MOBILE_BANKING;
+            default -> throw new IllegalArgumentException("Unknown payment method: " + dbValue);
+        };
     }
 }

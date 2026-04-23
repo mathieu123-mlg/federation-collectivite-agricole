@@ -31,10 +31,10 @@ public class CollectivityRepository {
                         ?, ?, ?, ?, ?) RETURNING id;
                 """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, "coll-" + collectivity.getId() + "-" + collectivity.getSpeciality() + "-" + collectivity.getCreationDatetime());
+            ps.setString(1, "coll-" + collectivity.getId() + "-" + collectivity.getSpeciality() + "-" + collectivity.getCreationDate());
             ps.setString(2, collectivity.getLocation());
             ps.setString(3, collectivity.getSpeciality());
-            ps.setTimestamp(4, Timestamp.from(collectivity.getCreationDatetime()));
+            ps.setTimestamp(4, Timestamp.from(collectivity.getCreationDate()));
             ps.setBoolean(5, collectivity.isFederationApproval());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -240,6 +240,51 @@ public class CollectivityRepository {
     }
 
     public List<CollectivityTransaction> getTransaction(Integer id, Instant from, Instant to) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        String sql = """
+                    SELECT p.id, p.payment_date, p.amount, p.payment_method,
+                           m.id AS member_id, m.first_name, m.last_name
+                    FROM payment p
+                    JOIN member m ON m.id = p.member_id
+                    JOIN member_collectivity mc ON mc.member_id = m.id
+                    WHERE mc.collectivity_id = ?
+                      AND p.payment_date BETWEEN ? AND ?
+                      AND (mc.leave_date IS NULL OR mc.leave_date >= p.payment_date)
+                    ORDER BY p.payment_date DESC
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.setTimestamp(2, Timestamp.from(from));
+            ps.setTimestamp(3, Timestamp.from(to));
+
+            ResultSet rs = ps.executeQuery();
+            List<CollectivityTransaction> transactions = new ArrayList<>();
+            while (rs.next()) {
+                CollectivityTransaction tx = new CollectivityTransaction();
+
+                tx.setId(rs.getInt("id"));
+                tx.setCreationDate(rs.getTimestamp("payment_date").toInstant());
+                tx.setAmount(rs.getDouble("amount"));
+
+                tx.setPaymentMode(rowMapper.mapPaymentMode(rs.getString("payment_method")));
+
+                Member m = new Member();
+                m.setId(rs.getInt("member_id"));
+                m.setFirstName(rs.getString("first_name"));
+                m.setLastName(rs.getString("last_name"));
+
+                tx.setMemberDebited(m);
+
+                // ⚠️ AccountCredited (pas dans schema payment)
+                // fallback simple (sinon table account relation manquante)
+                tx.setAccountCredited(null);
+
+                transactions.add(tx);
+            }
+            return transactions;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch collectivity transactions", e);
+        }
     }
 }

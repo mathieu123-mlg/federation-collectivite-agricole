@@ -9,7 +9,9 @@ import org.agricultural.federation.agriculturalfederation.exception.BadRequestEx
 import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
 import org.agricultural.federation.agriculturalfederation.repository.CollectivityRepository;
 import org.agricultural.federation.agriculturalfederation.repository.MembershipFeeRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class MembershipFeeService {
 
     private final MembershipFeeRepository membershipFeeRepository;

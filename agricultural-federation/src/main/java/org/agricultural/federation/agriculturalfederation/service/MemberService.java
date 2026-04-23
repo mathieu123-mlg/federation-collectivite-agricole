@@ -1,5 +1,6 @@
 package org.agricultural.federation.agriculturalfederation.service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,10 +98,23 @@ public class MemberService {
         }
     }
 
-    public List<MemberPayment> createMembersPayments(Integer id, List<CreateMemberPayment> createMembersPayments) {
-        if (id == null) {
-            throw new BadRequestException("MemberPayment.id cannot be null");
+    public List<MemberPayment> createMembersPayments(Integer memberId, List<CreateMemberPayment> payments) {
+        if (memberId == null) {
+            throw new BadRequestException("Member id cannot be null");
         }
-        return collectivityRepository.createMembersPayments(id, createMembersPayments);
+        if (!memberRepository.existsById(memberId)) {
+            throw new NotFoundException("Member not found");
+        }
+
+        List<MemberPayment> result = new ArrayList<>();
+        for (CreateMemberPayment cp : payments) {
+            memberRepository.savePayment(memberId, cp);
+            MemberPayment mp = new MemberPayment();
+            mp.setAmount(cp.getAmount());
+            mp.setPaymentMode(cp.getPaymentMode());
+            mp.setCreationDate(Instant.now());
+            result.add(mp);
+        }
+        return result;
     }
 }

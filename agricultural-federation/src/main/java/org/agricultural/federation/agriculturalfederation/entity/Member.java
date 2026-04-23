@@ -30,6 +30,10 @@ public class Member {
         this.adhesionDate = adhesionDate;
     }
 
+    public Member() {
+
+    }
+
     public Integer getId() {
         return id;
     }

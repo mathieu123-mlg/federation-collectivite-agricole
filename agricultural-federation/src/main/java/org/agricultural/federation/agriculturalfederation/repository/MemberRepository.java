@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 import org.agricultural.federation.agriculturalfederation.entity.CreateMember;
+import org.agricultural.federation.agriculturalfederation.entity.CreateMemberPayment;
 import org.agricultural.federation.agriculturalfederation.entity.Member;
 import org.agricultural.federation.agriculturalfederation.mapper.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -135,5 +136,25 @@ public class MemberRepository {
             throw new RuntimeException(e);
         }
         return null;
+    }
+
+    public void savePayment(Integer memberId, CreateMemberPayment cp) {
+        String sql = """
+                    INSERT INTO payment
+                    (member_id, amount, type, payment_method, payment_date, membership_fee_id, collectivity_account_id)
+                    VALUES (?, ?, 'COTISATION', ?::payment_method, CURRENT_TIMESTAMP, ?, ?)
+                """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, memberId);
+            ps.setDouble(2, cp.getAmount());
+            ps.setString(3, cp.getPaymentMode().name());
+            ps.setInt(4, Integer.parseInt(cp.getMembershipFeeIdentifier()));
+            ps.setInt(5, Integer.parseInt(cp.getAccountCreditedIdentifier()));
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to save payment", e);
+        }
     }
 }
