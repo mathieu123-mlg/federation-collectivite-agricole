@@ -262,6 +262,7 @@ components:
           type: string
         number:
           type: integer
+          format: int64
     Collectivity:
       type: object
       allOf:
@@ -312,6 +313,7 @@ components:
           type: string
         phoneNumber:
           type: integer
+          format: int64
         email:
           type: string
         occupation:
@@ -353,6 +355,7 @@ components:
       properties:
         amount:
           type: integer
+          format: int64
         membershipFeeIdentifier:
           type: string
         accountCreditedIdentifier:
@@ -365,6 +368,7 @@ components:
           type: string
         amount:
           type: integer
+          format: int64
         paymentMode:
           $ref: '#/components/schemas/PaymentMode'
         accountCredited:
@@ -385,6 +389,7 @@ components:
           type: string
         amount:
           type: integer
+          format: int64
     MobileBankingAccount:
       type: object
       properties:
@@ -396,6 +401,7 @@ components:
           $ref: '#/components/schemas/MobileBankingService'
         mobileNumber:
           type: integer
+          format: int64
         amount:
           type: number
     BankAccount:
@@ -410,12 +416,16 @@ components:
           $ref: '#/components/schemas/Bank'
         bankCode:
           type: integer
+          format: int64
         bankBranchCode:
           type: integer
+          format: int64
         bankAccountNumber:
           type: integer
+          format: int64
         bankAccountKey:
           type: integer
+          format: int64
         amount:
           type: number
     MobileBankingService:
