@@ -1,7 +1,10 @@
 package org.agricultural.federation.agriculturalfederation.service;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
-import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
 import org.agricultural.federation.agriculturalfederation.entity.CollectivityStructure;
 import org.agricultural.federation.agriculturalfederation.entity.CreateCollectivity;
 import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
@@ -9,10 +12,6 @@ import org.agricultural.federation.agriculturalfederation.exception.NotFoundExce
 import org.agricultural.federation.agriculturalfederation.repository.CollectivityRepository;
 import org.agricultural.federation.agriculturalfederation.validator.CollectivityValidator;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class CollectivityService {
@@ -97,5 +96,9 @@ public class CollectivityService {
     private Collectivity enrichCollectivityWithDetails(Integer id) {
         return collectivityRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new NotFoundException("Created collectivity not found"));
+    }
+    public Collectivity getCollectivityById(Integer id) {
+        return collectivityRepository.findByIdWithDetails(id)
+                .orElseThrow(() -> new NotFoundException("Collectivity.id=" + id + " is not found"));
     }
 }

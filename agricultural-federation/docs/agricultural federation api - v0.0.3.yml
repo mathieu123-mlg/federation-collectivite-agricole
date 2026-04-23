@@ -199,6 +199,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MemberPayment'
+  '/collectivities/{id}':
+    get:
+      summary: Retrieve collectivity by id
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Collectivity found with its members list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collectivity'
+        404:
+          description: Collectivity not found.
 
 components:
   schemas:
@@ -210,8 +228,7 @@ components:
         members:
           type: array
           items:
-            schema:
-              $ref: '#/components/schemas/MemberIdentifier'
+            $ref: '#/components/schemas/MemberIdentifier'
         federationApproval:
           type: boolean
         structure:
@@ -244,7 +261,7 @@ components:
         name:
           type: string
         number:
-          type: int
+          type: integer
     Collectivity:
       type: object
       allOf:
@@ -294,7 +311,7 @@ components:
         profession:
           type: string
         phoneNumber:
-          type: int
+          type: integer
         email:
           type: string
         occupation:
@@ -335,7 +352,7 @@ components:
       type: object
       properties:
         amount:
-          type: int
+          type: integer
         membershipFeeIdentifier:
           type: string
         accountCreditedIdentifier:
@@ -347,7 +364,7 @@ components:
         id:
           type: string
         amount:
-          type: int
+          type: integer
         paymentMode:
           $ref: '#/components/schemas/PaymentMode'
         accountCredited:
@@ -367,7 +384,7 @@ components:
         id:
           type: string
         amount:
-          type: int
+          type: integer
     MobileBankingAccount:
       type: object
       properties:
@@ -378,7 +395,7 @@ components:
         mobileBankingService:
           $ref: '#/components/schemas/MobileBankingService'
         mobileNumber:
-          type: int
+          type: integer
         amount:
           type: number
     BankAccount:
@@ -392,13 +409,13 @@ components:
         bankName:
           $ref: '#/components/schemas/Bank'
         bankCode:
-          type: int
+          type: integer
         bankBranchCode:
-          type: int
+          type: integer
         bankAccountNumber:
-          type: int
+          type: integer
         bankAccountKey:
-          type: int
+          type: integer
         amount:
           type: number
     MobileBankingService:
