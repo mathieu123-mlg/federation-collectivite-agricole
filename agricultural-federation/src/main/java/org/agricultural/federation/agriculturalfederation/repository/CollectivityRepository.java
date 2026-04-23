@@ -1,13 +1,5 @@
 package org.agricultural.federation.agriculturalfederation.repository;
 
-import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
-import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
-import org.agricultural.federation.agriculturalfederation.entity.CollectivityStructure;
-import org.agricultural.federation.agriculturalfederation.entity.Member;
-import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
-import org.agricultural.federation.agriculturalfederation.mapper.RowMapper;
-import org.springframework.stereotype.Repository;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,6 +10,12 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
+import org.agricultural.federation.agriculturalfederation.entity.CollectivityStructure;
+import org.agricultural.federation.agriculturalfederation.entity.Member;
+import org.agricultural.federation.agriculturalfederation.mapper.RowMapper;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class CollectivityRepository {
@@ -229,7 +227,7 @@ public class CollectivityRepository {
         }
     }
     public boolean existsById(Integer id) {
-        String sql = "SELECT 1 FROM membership_fee WHERE id = ?";
+        String sql = "SELECT 1 FROM collectivity WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {

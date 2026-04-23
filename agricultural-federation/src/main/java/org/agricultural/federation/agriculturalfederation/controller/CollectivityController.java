@@ -1,17 +1,15 @@
 package org.agricultural.federation.agriculturalfederation.controller;
 
-<<<<<<< HEAD
 import java.util.List;
 
-=======
 import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
->>>>>>> d26c5ed69d35ab5ae93a26a030828d77d4d3c39e
 import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
 import org.agricultural.federation.agriculturalfederation.entity.CreateCollectivity;
 import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
 import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
 import org.agricultural.federation.agriculturalfederation.service.CollectivityService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
