@@ -1,120 +1,94 @@
-\c agricultural_federation
-create type gender_enum AS ENUM ('MALE', 'FEMALE');
-create type role_enum AS ENUM ('PRESIDENT','VICE_PRESIDENT','TREASURER','SECRETARY','SENIOR','JUNIOR');
-create type payment_type AS ENUM ('REGISTRATION', 'COTISATION');
-create type payment_method AS ENUM ('CASH', 'BANK_TRANSFER', 'MOBILE_MONEY');
-create type account_type_enum AS ENUM ('CASH', 'BANK', 'MOBILE_MONEY');
-create type activity_type_enum AS ENUM ('GENERAL_MEETING', 'TRAINING', 'EXCEPTIONAL');
-create type frequency_enum AS ENUM ('WEEKLY', 'MONTHLY', 'ANNUALLY', 'PUNCTUALLY');
-create type activity_status_enum AS ENUM ('ACTIVE', 'INACTIVE');
-
 create table if not exists collectivity
 (
-    id                  serial PRIMARY KEY,
-    number              int          not null,
-    name                varchar(100) not null,
-    location            VARCHAR(100) NOT NULL,
-    speciality          VARCHAR(100) NOT NULL,
-    creation_datetime   timestamp    NOT NULL,
-    federation_approval BOOLEAN      NOT NULL,
-    created_at          timestamp    not null default current_timestamp,
-    updated_at          timestamp             default null,
-    constraint unique_number_name unique (number, name)
+    id             varchar primary key,
+    number         int          not null,
+    name           varchar(100) not null,
+    locality       varchar(100),
+    specialisation varchar(100) not null
 );
+
+create type gender as enum ('M', 'F');
+create type occupation as enum ('PRESIDENT', 'VICE_PRESIDENT', 'TREASURER', 'SECRETARY', 'CONFIRMED', 'JUNIOR');
 
 create table if not exists member
 (
-    id            serial PRIMARY KEY,
-    first_name    VARCHAR(100) NOT NULL,
-    last_name     VARCHAR(100) NOT NULL,
-    birth_date    DATE         NOT NULL,
-    gender        gender_enum  NOT NULL,
-    address       TEXT,
-    profession    VARCHAR(100),
-    phone_number  VARCHAR(20),
-    email         VARCHAR(100) UNIQUE,
-    adhesion_date timestamp    NOT NULL
+    id           varchar primary key,
+    first_name   varchar(100) not null,
+    last_name    varchar(100) not null,
+    birthdate    date         not null,
+    gender       gender       not null default 'M',
+    address      varchar      not null,
+    profession   varchar(100) not null,
+    phone_number varchar(30)  not null,
+    email        varchar(40)  not null
 );
 
-create table if not exists member_collectivity
+create table member_collectivity
 (
-    id              serial PRIMARY KEY,
-    member_id       serial    NOT NULL REFERENCES member (id) ON DELETE CASCADE,
-    collectivity_id serial    NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    join_date       timestamp NOT NULL,
-    leave_date      timestamp
+    id              varchar primary key,
+    collectivity_id varchar references collectivity (id),
+    member_id       varchar references member (id),
+    occupation      occupation not null default 'JUNIOR'
 );
 
-create table if not exists mandate
+create table member_referrals
 (
-    id              serial PRIMARY KEY,
-    collectivity_id serial    NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    start_date      timestamp NOT NULL,
-    end_date        timestamp NOT NULL
+    id              serial primary key,
+    collectivity_id varchar references collectivity (id),
+    member_col_id   varchar references member_collectivity (id),
+    referrer_col_id varchar references member_collectivity (id) check ( member_col_id != referrer_col_id )
 );
 
-create table if not exists member_role
+create type status AS ENUM ('ACTIVE', 'INACTIVE');
+create type frequency AS ENUM ('WEEKLY', 'MONTHLY', 'ANNUALLY', 'PUNCTUALLY');
+
+create table if not exists membership_fee
 (
-    id         serial PRIMARY KEY,
-    member_id  serial    NOT NULL REFERENCES member (id) ON DELETE CASCADE,
-    mandate_id serial    NOT NULL REFERENCES mandate (id) ON DELETE CASCADE,
-    role       role_enum NOT NULL,
-
-    CONSTRAINT unique_role_per_mandate UNIQUE (mandate_id, role, member_id)
+    id              varchar primary key,
+    label           varchar not null,
+    status          status  not null                    default 'INACTIVE',
+    frequency       frequency                           default 'MONTHLY',
+    eligibility     date    not null                    default current_date,
+    amount          numeric(10, 2) check ( amount > 0 ) default 0,
+    collectivity_id varchar references collectivity (id)
 );
 
-create table if not exists referee
+create type account_type as enum (
+    'CASH',
+    'AIRTEL_MONEY', 'MVOLA', 'ORANGE_MONEY',
+    'BRED', 'MCB', 'BMOI', 'BOA', 'BGFI', 'AFG', 'ACCESS_BANK', 'BAOBAB', 'SIPEM'
+    );
+
+create table if not exists account_collectivity
 (
-    id              serial PRIMARY KEY,
-    candidate_id    serial       NOT NULL REFERENCES member (id) ON DELETE CASCADE,
-    referee_id      serial       NOT NULL REFERENCES member (id) ON DELETE CASCADE,
-    collectivity_id serial REFERENCES collectivity (id),
-    relationship    VARCHAR(100) NOT NULL
+    id              varchar primary key,
+    collectivity_id varchar        not null references collectivity (id),
+    account_type    account_type default 'CASH',
+    amount          numeric(10, 2) not null check ( amount >= 0 ) default 0,
+    titular         varchar check ( (account_type = 'CASH' and titular is null) or (account_type != 'CASH' and titular is not null) ),
+    account_number  varchar check ( (account_type = 'CASH' and account_number is null) or (account_type != 'CASH' and account_number is not null) )
 );
+
+create type payment_mode as enum ('CASH', 'BANK_TRANSFER', 'MOBILE_MONEY');
 
 create table if not exists payment
 (
-    id                      serial PRIMARY KEY,
-    member_id               serial         NOT NULL REFERENCES member (id) ON DELETE CASCADE,
-    amount                  DECIMAL(12, 2) NOT NULL,
-    type                    payment_type   NOT NULL,
-    payment_method          payment_method NOT NULL,
-    payment_date            TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    membership_fee_id       INT            NULL,
-    collectivity_account_id INT            NULL REFERENCES collectivity_account (id)
+    id              serial primary key,
+    collectivity_id varchar references collectivity (id)         not null,
+    member_col_id   varchar references member_collectivity (id)  not null,
+    amount          numeric(10, 2)                               not null check ( amount > 0 ) default 0,
+    account_col_id  varchar references account_collectivity (id) not null,
+    payment_mode    payment_mode                                                               default 'CASH' not null,
+    created_at      timestamp without time zone                  not null                      default current_timestamp
 );
 
-create table if not exists collectivity_account
+create table if not exists transaction
 (
-    id              serial PRIMARY KEY,
-    collectivity_id serial            NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    type            account_type_enum NOT NULL,
-    balance         DECIMAL(14, 2) DEFAULT 0,
-    created_at      TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
+    id              serial primary key,
+    collectivity_id varchar references collectivity (id)         not null,
+    member_col_id   varchar references member_collectivity (id)  not null,
+    amount          numeric(10, 2)                               not null check ( amount > 0 ) default 0,
+    account_col_id  varchar references account_collectivity (id) not null,
+    payment_mode    payment_mode                                                               default 'CASH' not null,
+    created_at      timestamp without time zone                  not null                      default current_timestamp
 );
-
-
-create table if not exists activity
-(
-    id              serial PRIMARY KEY,
-    collectivity_id serial             NOT NULL REFERENCES collectivity (id) ON DELETE CASCADE,
-    type            activity_type_enum NOT NULL,
-    activity_date   timestamp          NOT NULL,
-    mandatory       BOOLEAN            NOT NULL
-);
-
-create table if not exists attendance
-(
-    id          serial PRIMARY KEY,
-    activity_id serial  NOT NULL REFERENCES activity (id) ON DELETE CASCADE,
-    member_id   serial  NOT NULL REFERENCES member (id) ON DELETE CASCADE,
-    present     BOOLEAN NOT NULL,
-    justified   BOOLEAN DEFAULT FALSE,
-
-    UNIQUE (activity_id, member_id)
-);
-
-CREATE INDEX idx_member_collectivity_member ON member_collectivity (member_id);
-CREATE INDEX idx_member_collectivity_collectivity ON member_collectivity (collectivity_id);
-CREATE INDEX idx_payment_member ON payment (member_id);
-CREATE INDEX idx_attendance_activity ON attendance (activity_id);
