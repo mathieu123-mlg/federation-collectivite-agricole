@@ -1,14 +1,16 @@
 create table if not exists collectivity
 (
     id             varchar primary key,
-    number         int          not null,
-    name           varchar(100) not null,
-    locality       varchar(100),
-    specialisation varchar(100) not null
+    number         int          unique not null,
+    name           varchar(100) unique not null,
+    location       varchar(100),
+    speciality varchar(100) not null
 );
 
+alter table collectivity add column updated_at timestamp;
+
 create type gender as enum ('M', 'F');
-create type occupation as enum ('PRESIDENT', 'VICE_PRESIDENT', 'TREASURER', 'SECRETARY', 'CONFIRMED', 'JUNIOR');
+create type occupation as enum ('PRESIDENT', 'VICE_PRESIDENT', 'TREASURER', 'SECRETARY', 'SENIOR', 'JUNIOR');
 
 create table if not exists member
 (
@@ -20,7 +22,8 @@ create table if not exists member
     address      varchar      not null,
     profession   varchar(100) not null,
     phone_number varchar(30)  not null,
-    email        varchar(40)  not null
+    email        varchar(40)  not null,
+    constraint first_name_last_name_unique unique (first_name, last_name)
 );
 
 create table member_collectivity
@@ -28,7 +31,8 @@ create table member_collectivity
     id              varchar primary key,
     collectivity_id varchar references collectivity (id),
     member_id       varchar references member (id),
-    occupation      occupation not null default 'JUNIOR'
+    occupation      occupation not null default 'JUNIOR',
+    constraint collectivity_id_member_id unique (collectivity_id, member_id)
 );
 
 create table member_referrals
@@ -36,7 +40,8 @@ create table member_referrals
     id              serial primary key,
     collectivity_id varchar references collectivity (id),
     member_col_id   varchar references member_collectivity (id),
-    referrer_col_id varchar references member_collectivity (id) check ( member_col_id != referrer_col_id )
+    referrer_col_id varchar references member_collectivity (id) check ( member_col_id != referrer_col_id ),
+    member_relation varchar(50)
 );
 
 create type status AS ENUM ('ACTIVE', 'INACTIVE');
@@ -48,7 +53,7 @@ create table if not exists membership_fee
     label           varchar not null,
     status          status  not null                    default 'INACTIVE',
     frequency       frequency                           default 'MONTHLY',
-    eligibility     date    not null                    default current_date,
+    eligible_from     date    not null                    default current_date,
     amount          numeric(10, 2) check ( amount > 0 ) default 0,
     collectivity_id varchar references collectivity (id)
 );
@@ -57,7 +62,7 @@ create type account_type as enum (
     'CASH',
     'AIRTEL_MONEY', 'MVOLA', 'ORANGE_MONEY',
     'BRED', 'MCB', 'BMOI', 'BOA', 'BGFI', 'AFG', 'ACCESS_BANK', 'BAOBAB', 'SIPEM'
-    );
+);
 
 create table if not exists account_collectivity
 (

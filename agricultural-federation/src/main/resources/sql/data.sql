@@ -1,4 +1,4 @@
-insert into collectivity (id, number, name, locality, specialisation)
+insert into collectivity (id, number, name, location, speciality)
 values ('col-1', 1, 'Mpanorina', 'Ambatondrazaka', 'Riziculture'),
        ('col-2', 2, 'Dobo Voalohany', 'Ambatondrazaka', 'Pisciculture'),
        ('col-3', 3, 'Tantely Mamy', 'Brickaville', 'Apiculture');
@@ -74,7 +74,7 @@ values ('col-1', 'C1-M3', 'C1-M1'), ('col-1', 'C1-M3', 'C1-M2'),
        ('col-3', 'C3-M7', 'C3-M1'), ('col-3', 'C3-M7', 'C3-M2'),
        ('col-3', 'C3-M8', 'C3-M1'), ('col-3', 'C3-M8', 'C3-M2');
 
-insert into membership_fee (id, label, status, frequency, eligibility, amount, collectivity_id)
+insert into membership_fee (id, label, status, frequency, eligible_from, amount, collectivity_id)
 values ('cot-1', 'Cotisation annuelle', 'ACTIVE', 'ANNUALLY', '01/01/2026', 100_000, 'col-1'),
        ('cot-2', 'Cotisation annuelle', 'ACTIVE', 'ANNUALLY', '01/01/2026', 100_000, 'col-2'),
        ('cot-3', 'Cotisation annuelle', 'ACTIVE', 'ANNUALLY', '01/01/2026', 50_000, 'col-3');
