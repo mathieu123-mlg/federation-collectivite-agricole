@@ -60,6 +60,8 @@ paths:
                 $ref: '#/components/schemas/Collectivity'
         400:
           description: Either given number or name is already used by other collectivity.
+        401:
+          description: Number and name are already modified.
         404:
           description: Collectivity not found.
   '/collectivities/{id}/membershipFees':
@@ -199,6 +201,32 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MemberPayment'
+  '/collectivities/{id}/financialAccounts':
+    get:
+      summary: Retrieve financial account list by collectivity id
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: at
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: List of Financial account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinancialAccount'
+        404:
+          description: Collectivity not found.
+
   '/collectivities/{id}':
     get:
       summary: Retrieve collectivity by id
@@ -312,8 +340,7 @@ components:
         profession:
           type: string
         phoneNumber:
-          type: integer
-          format: int64
+          type: string
         email:
           type: string
         occupation:
@@ -492,5 +519,5 @@ components:
       type: string
       enum:
         - CASH
-        - MOBILE_BANKING
+        - MOBILE_MONEY
         - BANK_TRANSFER
