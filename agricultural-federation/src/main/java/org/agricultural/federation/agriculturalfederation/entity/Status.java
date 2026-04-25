@@ -1,5 +1,5 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
-public enum PaymentMode {
-    CASH, MOBILE_MONEY, BANK_TRANSFER
+public enum Status {
+    ACTIVE, INACTIVE
 }

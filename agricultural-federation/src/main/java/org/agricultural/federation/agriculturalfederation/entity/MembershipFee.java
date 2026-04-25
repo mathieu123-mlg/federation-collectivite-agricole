@@ -1,42 +1,32 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 public class MembershipFee {
-
-    private Integer id;
-    private LocalDate eligibleFrom;
+    private Date eligibleFrom;
     private String frequency;
     private Double amount;
     private String label;
-    private String status;
+    private String id;
+    private Status status;
 
-    public MembershipFee(Integer id, LocalDate eligibleFrom, String frequency, Double amount, String label, String status) {
-        this.id = id;
+    public MembershipFee() {
+    }
+
+    public MembershipFee(Date eligibleFrom, String frequency, Double amount, String label, String id, Status status) {
         this.eligibleFrom = eligibleFrom;
         this.frequency = frequency;
         this.amount = amount;
         this.label = label;
+        this.id = id;
         this.status = status;
     }
 
-    public MembershipFee() {
-        //TODO Auto-generated constructor stub
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public LocalDate getEligibleFrom() {
+    public Date getEligibleFrom() {
         return eligibleFrom;
     }
 
-    public void setEligibleFrom(LocalDate eligibleFrom) {
+    public void setEligibleFrom(Date eligibleFrom) {
         this.eligibleFrom = eligibleFrom;
     }
 
@@ -64,11 +54,19 @@ public class MembershipFee {
         this.label = label;
     }
 
-    public String getStatus() {
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 }

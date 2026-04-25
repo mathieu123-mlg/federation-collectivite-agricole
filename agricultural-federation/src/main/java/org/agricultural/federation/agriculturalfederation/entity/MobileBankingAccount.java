@@ -1,13 +1,13 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
 public class MobileBankingAccount implements FinancialAccount {
-    private Integer id;
+    private String id;
     private String holderName;
     private MobileBankingService mobileBankingService;
     private String mobileNumber;
     private Double amount;
 
-    public MobileBankingAccount(Integer id, String holderName, MobileBankingService mobileBankingService, String mobileNumber, Double amount) {
+    public MobileBankingAccount(String id, String holderName, MobileBankingService mobileBankingService, String mobileNumber, Double amount) {
         this.id = id;
         this.holderName = holderName;
         this.mobileBankingService = mobileBankingService;
@@ -20,12 +20,12 @@ public class MobileBankingAccount implements FinancialAccount {
     }
 
     @Override
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
     @Override
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 

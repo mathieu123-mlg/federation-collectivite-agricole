@@ -1,12 +1,12 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
 public class CashAccount implements FinancialAccount {
-    private Integer id;
-    private Double Amount;
+    private String id;
+    private Double amount;
 
-    public CashAccount(Integer id, Double amount) {
+    public CashAccount(String id, Double amount) {
         this.id = id;
-        Amount = amount;
+        this.amount = amount;
     }
 
     public CashAccount() {
@@ -14,22 +14,22 @@ public class CashAccount implements FinancialAccount {
     }
 
     @Override
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
     @Override
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
     @Override
     public Double getAmount() {
-        return Amount;
+        return amount;
     }
 
     @Override
     public void setAmount(Double amount) {
-        Amount = amount;
+        this.amount = amount;
     }
 }

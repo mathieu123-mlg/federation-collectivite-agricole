@@ -2,7 +2,7 @@ package org.agricultural.federation.agriculturalfederation.entity;
 
 import java.time.Instant;
 
-public class CollectivityTransaction {
+public class Transaction {
     private Integer id;
     private Instant creationDate;
     private Double amount;
@@ -10,7 +10,7 @@ public class CollectivityTransaction {
     private FinancialAccount accountCredited;
     private Member memberDebited;
 
-    public CollectivityTransaction(Integer id, Instant creationDate, Double amount, PaymentMode paymentMode, FinancialAccount accountCredited, Member memberDebited) {
+    public Transaction(Integer id, Instant creationDate, Double amount, PaymentMode paymentMode, FinancialAccount accountCredited, Member memberDebited) {
         this.id = id;
         this.creationDate = creationDate;
         this.amount = amount;
@@ -19,7 +19,7 @@ public class CollectivityTransaction {
         this.memberDebited = memberDebited;
     }
 
-    public CollectivityTransaction() {
+    public Transaction() {
     }
 
     public Integer getId() {

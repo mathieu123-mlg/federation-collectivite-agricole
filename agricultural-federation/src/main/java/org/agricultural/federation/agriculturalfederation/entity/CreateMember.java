@@ -1,92 +1,28 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
-import java.time.LocalDate;
+import java.sql.Date;
 import java.util.List;
 
-public class CreateMember {
-    private String firstName;
-    private String lastName;
-    private LocalDate birthDate;
-    private Gender gender;
-    private String address;
-    private String profession;
-    private String phoneNumber;
-    private String email;
-    private Integer collectivityId;
+public class CreateMember extends MemberInformation {
+    private String collectivityIdentifier;
     private List<Referee> referees;
     private boolean registrationFeePaid;
     private boolean membershipDuesPaid;
 
-    public String getFirstName() {
-        return firstName;
+    public CreateMember(String firstName, String lastName, Date birthDate, Gender gender, String address, String profession, String phoneNumber, String email, MemberOccupation occupation, String collectivityIdentifier, List<Referee> referees, boolean registrationFeePaid, boolean membershipDuesPaid) {
+        super(firstName, lastName, birthDate, gender, address, profession, phoneNumber, email, occupation);
+        this.collectivityIdentifier = collectivityIdentifier;
+        this.referees = referees;
+        this.registrationFeePaid = registrationFeePaid;
+        this.membershipDuesPaid = membershipDuesPaid;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public String getCollectivityIdentifier() {
+        return collectivityIdentifier;
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getProfession() {
-        return profession;
-    }
-
-    public void setProfession(String profession) {
-        this.profession = profession;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Integer getCollectivityId() {
-        return collectivityId;
-    }
-
-    public void setCollectivityId(Integer collectivityId) {
-        this.collectivityId = collectivityId;
+    public void setCollectivityIdentifier(String collectivityIdentifier) {
+        this.collectivityIdentifier = collectivityIdentifier;
     }
 
     public List<Referee> getReferees() {

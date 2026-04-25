@@ -1,12 +1,12 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
 public class CollectivityStructure {
-    private Integer president;
-    private Integer vicePresident;
-    private Integer treasurer;
-    private Integer secretary;
+    private Member president;
+    private Member vicePresident;
+    private Member treasurer;
+    private Member secretary;
 
-    public CollectivityStructure(Integer president, Integer vicePresident, Integer treasurer, Integer secretary) {
+    public CollectivityStructure(Member president, Member vicePresident, Member treasurer, Member secretary) {
         this.president = president;
         this.vicePresident = vicePresident;
         this.treasurer = treasurer;
@@ -17,35 +17,35 @@ public class CollectivityStructure {
 
     }
 
-    public Integer getPresident() {
+    public Member getPresident() {
         return president;
     }
 
-    public void setPresident(Integer president) {
+    public void setPresident(Member president) {
         this.president = president;
     }
 
-    public Integer getVicePresident() {
+    public Member getVicePresident() {
         return vicePresident;
     }
 
-    public void setVicePresident(Integer vicePresident) {
+    public void setVicePresident(Member vicePresident) {
         this.vicePresident = vicePresident;
     }
 
-    public Integer getTreasurer() {
+    public Member getTreasurer() {
         return treasurer;
     }
 
-    public void setTreasurer(Integer treasurer) {
+    public void setTreasurer(Member treasurer) {
         this.treasurer = treasurer;
     }
 
-    public Integer getSecretary() {
+    public Member getSecretary() {
         return secretary;
     }
 
-    public void setSecretary(Integer secretary) {
+    public void setSecretary(Member secretary) {
         this.secretary = secretary;
     }
 }

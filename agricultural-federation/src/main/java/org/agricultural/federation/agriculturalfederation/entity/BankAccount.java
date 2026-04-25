@@ -1,19 +1,19 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
 public class BankAccount implements FinancialAccount {
-    private Integer id;
+    private String id;
     private String holderName;
     private Bank bankName;
     private Integer bankCode;
     private Integer bankBranchCode;
-    private Integer bankAccountNumber;
+    private String bankAccountNumber;
     private Integer bankAccountKey;
     private Double amount;
 
     public BankAccount() {
     }
 
-    public BankAccount(Integer id, String holderName, Bank bankName, Integer bankCode, Integer bankBranchCode, Integer bankAccountNumber, Integer bankAccountKey, Double amount) {
+    public BankAccount(String id, String holderName, Bank bankName, Integer bankCode, Integer bankBranchCode, String bankAccountNumber, Integer bankAccountKey, Double amount) {
         this.id = id;
         this.holderName = holderName;
         this.bankName = bankName;
@@ -25,12 +25,12 @@ public class BankAccount implements FinancialAccount {
     }
 
     @Override
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
     @Override
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -76,11 +76,11 @@ public class BankAccount implements FinancialAccount {
         this.bankBranchCode = bankBranchCode;
     }
 
-    public Integer getBankAccountNumber() {
+    public String getBankAccountNumber() {
         return bankAccountNumber;
     }
 
-    public void setBankAccountNumber(Integer bankAccountNumber) {
+    public void setBankAccountNumber(String bankAccountNumber) {
         this.bankAccountNumber = bankAccountNumber;
     }
 
