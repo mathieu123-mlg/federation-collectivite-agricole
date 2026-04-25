@@ -1,27 +1,18 @@
 package org.agricultural.federation.agriculturalfederation.controller;
 
-import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
-import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
-import org.agricultural.federation.agriculturalfederation.entity.CollectivityTransaction;
-import org.agricultural.federation.agriculturalfederation.entity.CreateCollectivity;
+import org.agricultural.federation.agriculturalfederation.entity.*;
 import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
 import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
+import org.agricultural.federation.agriculturalfederation.exception.UnAuthorizedException;
 import org.agricultural.federation.agriculturalfederation.service.CollectivityService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
+import java.sql.Date;
 import java.util.List;
 
 @RestController
 public class CollectivityController {
-
     private final CollectivityService collectivityService;
 
     public CollectivityController(CollectivityService collectivityService) {
@@ -31,7 +22,7 @@ public class CollectivityController {
     @PostMapping("/collectivities")
     public ResponseEntity<?> createCollectivity(@RequestBody List<CreateCollectivity> newCollectivity) {
         try {
-            var list = collectivityService.createCollectivity(newCollectivity);
+            List<Collectivity> list = collectivityService.createCollectivity(newCollectivity);
             return ResponseEntity
                     .status(201)
                     .body(list);
@@ -47,17 +38,41 @@ public class CollectivityController {
     }
 
     @PutMapping("/collectivities/{id}/informations")
-    public ResponseEntity<?> assignCollectivityIdentifier(
-            @PathVariable Integer id,
+    public ResponseEntity<?> updateCollectivityIdentifier(
+            @PathVariable String id,
             @RequestBody CollectivityIdentifier collectivityIdentifier
     ) {
         try {
-            Integer number = collectivityIdentifier.getNumber();
-            String name = collectivityIdentifier.getName();
-            Collectivity collectivityWithIdentifier = collectivityService.assignCollectivityIdentifier(id, number, name);
+            Collectivity collectivityWithIdentifier = collectivityService.updateCollectivityIdentifier(id, collectivityIdentifier);
             return ResponseEntity
                     .status(200)
                     .body(collectivityWithIdentifier);
+        } catch (BadRequestException e) {
+            return ResponseEntity
+                    .status(400)
+                    .body(e.getMessage());
+        } catch (UnAuthorizedException e) {
+            return ResponseEntity
+                    .status(401)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity
+                    .status(404)
+                    .body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/collectivities/{id}/transactions")
+    public ResponseEntity<?> getCollectivityTransactions(
+            @PathVariable String id,
+            @RequestParam String from,
+            @RequestParam String to
+    ) {
+        try {
+            List<Transaction> transaction = collectivityService.getCollectivityTransactions(id, from, to);
+            return ResponseEntity
+                    .status(200)
+                    .body(transaction);
         } catch (BadRequestException e) {
             return ResponseEntity
                     .status(400)
@@ -69,17 +84,43 @@ public class CollectivityController {
         }
     }
 
-    @GetMapping("/collectivities/{id}/transactions")
-    public ResponseEntity<?> getCollectivityTransactions(
-            @PathVariable Integer id,
-            @RequestParam Instant from,
-            @RequestParam Instant to
-    ) {
+    @GetMapping("/collectivities/{id}/membershipFees")
+    public ResponseEntity<?> getMembershipFee(@PathVariable String id) {
         try {
-            List<CollectivityTransaction> transaction = collectivityService.getCollectivityTransaction(id, from, to);
             return ResponseEntity
                     .status(200)
-                    .body(transaction);
+                    .body(collectivityService.getMembershipFeeById(id));
+        } catch (NotFoundException e) {
+            return ResponseEntity
+                    .status(404)
+                    .body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/collectivities/{id}")
+    public ResponseEntity<?> findCollectivityById(@PathVariable String id) {
+        try {
+            Collectivity collectivity = collectivityService.findCollectivityById(id);
+            return ResponseEntity
+                    .status(200)
+                    .body(collectivity);
+        } catch (NotFoundException e) {
+            return ResponseEntity
+                    .status(404)
+                    .body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/collectivities/{id}/financialAccounts")
+    public ResponseEntity<?> getFinancialAccounts(
+            @PathVariable String id,
+            @RequestParam Date at
+    ) {
+        try {
+            List<FinancialAccount> account = collectivityService.getFinancialAccounts(id, at);
+            return ResponseEntity
+                    .status(200)
+                    .body(account);
         } catch (BadRequestException e) {
             return ResponseEntity
                     .status(400)
