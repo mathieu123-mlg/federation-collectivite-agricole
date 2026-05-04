@@ -27,14 +27,14 @@ public class CollectivityService {
                 .orElseThrow(() -> new NotFoundException("Collectivity.id={" + id + ") is not found"));
     }
 
-    private static void validateStructure(String id, CollectivityStructure collectivityStructure) {
+    private static void validateStructure(CollectivityStructure collectivityStructure) {
         Member president = collectivityStructure.getPresident();
         Member vice_president = collectivityStructure.getVicePresident();
         Member treasurer = collectivityStructure.getTreasurer();
         Member secretary = collectivityStructure.getSecretary();
 
         if (president == null || treasurer == null || secretary == null) {
-            throw new NotFoundException("Collectivity.id={" + id + ") is not found");
+            throw new NotFoundException("Cannot create collectivity without PRESIDENT, TREASURER and SECRETARY");
         }
 
         if (!president.getOccupation().equals(MemberOccupation.PRESIDENT)) {
@@ -100,12 +100,44 @@ public class CollectivityService {
     }
 
     public List<Collectivity> createCollectivity(List<CreateCollectivity> newCollectivity) {
-//        return collectivityRepository.createCollectivity(newCollectivity);
-        throw new UnsupportedOperationException("Not supported yet.");
+        for (CreateCollectivity collectivity : newCollectivity) {
+            if (!collectivity.isFederationApproval()) {
+                throw new UnAuthorizedException("CreateCollectivity.federationApproval is not authorized.");
+            }
+            validateStructure(collectivity.getStructure());
+            List<String> memberIdentifiers = collectivity.getMembers();
+            if (memberIdentifiers.size() < 10) {
+                throw new BadRequestException("Cannot create collectivity with members less than 10.");
+            }
+        }
+        List<Collectivity> collectivityList = collectivityRepository.createCollectivity(newCollectivity);
+        for (Collectivity collectivity : collectivityList) {
+            collectivity.setMembers(collectivityRepository.getCollectivityMembersById(collectivity.getId()));
+        }
+        return collectivityList;
     }
 
     public List<FinancialAccount> getFinancialAccounts(String id, Date at) {
         findCollectivityById(id);
         return collectivityRepository.getFinancialAccounts(id, at);
+    }
+
+    public List<MembershipFee> createMembershipFee(String id, List<CreateMembershipFee> createMembershipFees) {
+        findCollectivityById(id);
+        for (CreateMembershipFee createMembershipFee : createMembershipFees) {
+            if (createMembershipFee.getEligibleFrom().toInstant().isAfter(Instant.now())) {
+                throw new BadRequestException("MembershipFee.eligibleFrom must be before current_date.");
+            }
+            if (createMembershipFee.getAmount() <= 0) {
+                throw new BadRequestException("MembershipFee.amount must be higher than 0.");
+            }
+            if (createMembershipFee.getFrequency().isBlank()) {
+                throw new BadRequestException("MembershipFee.frequency is required.");
+            }
+            if (createMembershipFee.getLabel().isBlank()) {
+                throw new BadRequestException("MembershipFee.label is required.");
+            }
+        }
+        return collectivityRepository.createMembershipFee(id, createMembershipFees);
     }
 }

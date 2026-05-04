@@ -3,13 +3,13 @@ package org.agricultural.federation.agriculturalfederation.entity;
 import java.time.Instant;
 
 public class MemberPayment {
-    private Integer id;
+    private String id;
     private Double amount;
     private PaymentMode paymentMode;
     private FinancialAccount accountCredited;
     private Instant creationDate;
 
-    public MemberPayment(Integer id, Double amount, PaymentMode paymentMode, FinancialAccount accountCredited, Instant creationDate) {
+    public MemberPayment(String id, Double amount, PaymentMode paymentMode, FinancialAccount accountCredited, Instant creationDate) {
         this.id = id;
         this.amount = amount;
         this.paymentMode = paymentMode;
@@ -20,11 +20,11 @@ public class MemberPayment {
     public MemberPayment() {
     }
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 

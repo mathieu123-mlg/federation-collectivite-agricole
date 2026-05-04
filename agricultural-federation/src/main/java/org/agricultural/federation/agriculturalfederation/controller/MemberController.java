@@ -2,6 +2,7 @@ package org.agricultural.federation.agriculturalfederation.controller;
 
 import org.agricultural.federation.agriculturalfederation.entity.CreateMember;
 import org.agricultural.federation.agriculturalfederation.entity.CreateMemberPayment;
+import org.agricultural.federation.agriculturalfederation.entity.Member;
 import org.agricultural.federation.agriculturalfederation.entity.MemberPayment;
 import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
 import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
@@ -25,19 +26,24 @@ public class MemberController {
     @PostMapping("/members")
     public ResponseEntity<?> createMembers(@RequestBody List<CreateMember> newMembers) {
         try {
+            List<Member> members = memberService.createMembers(newMembers);
             return ResponseEntity
                     .status(201)
-                    .body(memberService.createMembers(newMembers));
+                    .body(members);
         } catch (BadRequestException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
+            return ResponseEntity
+                    .status(400)
+                    .body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
+            return ResponseEntity
+                    .status(404)
+                    .body(e.getMessage());
         }
     }
 
     @PostMapping("/members/{id}/payments")
     public ResponseEntity<List<MemberPayment>> createMembersPayments(
-            @PathVariable Integer id,
+            @PathVariable String id,
             @RequestBody List<CreateMemberPayment> createMembersPayments
     ) {
         return ResponseEntity

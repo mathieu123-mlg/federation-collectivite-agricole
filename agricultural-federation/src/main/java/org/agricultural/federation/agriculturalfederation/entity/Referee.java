@@ -1,14 +1,14 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
 public class Referee {
-    private Integer memberId;
+    private String memberId;
     private String relationship;
 
-    public Integer getMemberId() {
+    public String getMemberId() {
         return memberId;
     }
 
-    public void setMemberId(Integer memberId) {
+    public void setMemberId(String memberId) {
         this.memberId = memberId;
     }
 

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MemberValidator {
 
+/*
     private final MemberRepository memberRepository;
 
     public MemberValidator(MemberRepository memberRepository) {
@@ -49,7 +50,7 @@ public class MemberValidator {
             Integer refereeCollectivityId
                     = memberRepository.getCollectivityIdOfMember(ref.getMemberId());
             if (refereeCollectivityId != null
-                    && refereeCollectivityId.equals(cm.getCollectivityId())) {
+                    && refereeCollectivityId.equals(cm.getCollectivityIdentifier())) {
                 fromSameCollectivity++;
             } else {
                 fromOtherCollectivity++;
@@ -63,5 +64,6 @@ public class MemberValidator {
         }
     }
 
+*/
 }
 

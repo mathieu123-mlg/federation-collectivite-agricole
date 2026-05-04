@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class MembershipFeeRepository {
+/*
     private final Connection connection;
 
     public MembershipFeeRepository(Connection connection) {
@@ -76,4 +77,5 @@ public class MembershipFeeRepository {
         }
         throw new RuntimeException("Failed to save membership fee");
     }
+*/
 }

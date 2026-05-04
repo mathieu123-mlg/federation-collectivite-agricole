@@ -1,19 +1,19 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
-import java.time.LocalDate;
+import java.sql.Date;
 
 public class CreateMembershipFee {
 
-    private LocalDate eligibleFrom;
+    private Date eligibleFrom;
     private String frequency;
     private Double amount;
     private String label;
 
-    public LocalDate getEligibleFrom() {
+    public Date getEligibleFrom() {
         return eligibleFrom;
     }
 
-    public void setEligibleFrom(LocalDate eligibleFrom) {
+    public void setEligibleFrom(Date eligibleFrom) {
         this.eligibleFrom = eligibleFrom;
     }
 

@@ -131,4 +131,25 @@ public class CollectivityController {
                     .body(e.getMessage());
         }
     }
+
+    @PostMapping("/collectivities/{id}/membershipFees")
+    public ResponseEntity<?> createMembershipFee(
+            @PathVariable String id,
+            @RequestBody List<CreateMembershipFee> createMembershipFees
+    ) {
+        try {
+            List<MembershipFee> membershipFee = collectivityService.createMembershipFee(id, createMembershipFees);
+            return ResponseEntity
+                    .status(200)
+                    .body(membershipFee);
+        } catch (BadRequestException e) {
+            return ResponseEntity
+                    .status(400)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity
+                    .status(404)
+                    .body(e.getMessage());
+        }
+    }
 }

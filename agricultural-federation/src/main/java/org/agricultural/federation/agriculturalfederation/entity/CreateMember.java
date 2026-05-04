@@ -2,6 +2,7 @@ package org.agricultural.federation.agriculturalfederation.entity;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class CreateMember extends MemberInformation {
     private String collectivityIdentifier;
@@ -47,5 +48,23 @@ public class CreateMember extends MemberInformation {
 
     public void setMembershipDuesPaid(boolean membershipDuesPaid) {
         this.membershipDuesPaid = membershipDuesPaid;
+    }
+
+    public Member mapToMember() {
+        return new Member(getFirstName(), getLastName(), getBirthDate(), getGender(), getAddress(), getProfession(),
+                getPhoneNumber(), getEmail(), getOccupation(), null, getReferees()
+        );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        CreateMember that = (CreateMember) o;
+        return registrationFeePaid == that.registrationFeePaid && membershipDuesPaid == that.membershipDuesPaid && Objects.equals(collectivityIdentifier, that.collectivityIdentifier) && Objects.equals(referees, that.referees);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(collectivityIdentifier, referees, registrationFeePaid, membershipDuesPaid);
     }
 }

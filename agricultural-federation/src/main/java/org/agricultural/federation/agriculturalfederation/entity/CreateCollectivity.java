@@ -4,11 +4,11 @@ import java.util.List;
 
 public class CreateCollectivity {
     private String location;
-    private List<Integer> members;
+    private List<String> members;
     private boolean federationApproval;
     private CollectivityStructure collectivityStructure;
 
-    public CreateCollectivity(List<Integer> members, String location, boolean federationApproval, CollectivityStructure collectivityStructure) {
+    public CreateCollectivity(List<String> members, String location, boolean federationApproval, CollectivityStructure collectivityStructure) {
         this.members = members;
         this.location = location;
         this.federationApproval = federationApproval;
@@ -23,11 +23,11 @@ public class CreateCollectivity {
         this.location = location;
     }
 
-    public List<Integer> getMembers() {
+    public List<String> getMembers() {
         return members;
     }
 
-    public void setMembers(List<Integer> members) {
+    public void setMembers(List<String> members) {
         this.members = members;
     }
 

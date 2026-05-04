@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 public class MembershipFeeController {
 
+/*
     private final MembershipFeeService membershipFeeService;
 
     public MembershipFeeController(MembershipFeeService membershipFeeService) {
@@ -54,4 +55,5 @@ public class MembershipFeeController {
                     .body(e.getMessage());
         }
     }
+*/
 }

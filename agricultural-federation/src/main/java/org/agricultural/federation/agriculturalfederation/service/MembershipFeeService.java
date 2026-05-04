@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MembershipFeeService {
 
+/*
     private final MembershipFeeRepository membershipFeeRepository;
     private final CollectivityRepository collectivityRepository;
 
@@ -52,4 +53,5 @@ public class MembershipFeeService {
         }
         return result;
     }
+*/
 }

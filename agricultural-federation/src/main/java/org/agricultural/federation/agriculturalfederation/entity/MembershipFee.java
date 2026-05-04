@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class MembershipFee {
     private Date eligibleFrom;
-    private String frequency;
+    private Frequency frequency;
     private Double amount;
     private String label;
     private String id;
@@ -13,7 +13,7 @@ public class MembershipFee {
     public MembershipFee() {
     }
 
-    public MembershipFee(Date eligibleFrom, String frequency, Double amount, String label, String id, Status status) {
+    public MembershipFee(Date eligibleFrom, Frequency frequency, Double amount, String label, String id, Status status) {
         this.eligibleFrom = eligibleFrom;
         this.frequency = frequency;
         this.amount = amount;
@@ -30,11 +30,11 @@ public class MembershipFee {
         this.eligibleFrom = eligibleFrom;
     }
 
-    public String getFrequency() {
+    public Frequency getFrequency() {
         return frequency;
     }
 
-    public void setFrequency(String frequency) {
+    public void setFrequency(Frequency frequency) {
         this.frequency = frequency;
     }
 

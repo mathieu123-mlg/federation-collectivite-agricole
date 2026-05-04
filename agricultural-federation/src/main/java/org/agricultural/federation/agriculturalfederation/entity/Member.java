@@ -117,9 +117,9 @@ public class Member extends MemberInformation {/*
         }
     */
     private String id;
-    private List<String> referees;
+    private List<Referee> referees;
 
-    public Member(String firstName, String lastName, Date birthDate, Gender gender, String address, String profession, String phoneNumber, String email, MemberOccupation occupation, String id, List<String> referees) {
+    public Member(String firstName, String lastName, Date birthDate, Gender gender, String address, String profession, String phoneNumber, String email, MemberOccupation occupation, String id, List<Referee> referees) {
         super(firstName, lastName, birthDate, gender, address, profession, phoneNumber, email, occupation);
         this.id = id;
         this.referees = referees;
@@ -139,11 +139,11 @@ public class Member extends MemberInformation {/*
         this.id = id;
     }
 
-    public List<String> getReferees() {
+    public List<Referee> getReferees() {
         return referees;
     }
 
-    public void setReferees(List<String> referees) {
+    public void setReferees(List<Referee> referees) {
         this.referees = referees;
     }
 }

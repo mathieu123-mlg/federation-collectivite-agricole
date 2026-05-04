@@ -52,7 +52,7 @@ public class RowMapper {
     public MembershipFee mapToMembershipFee(ResultSet rs) throws SQLException {
         MembershipFee membershipFee = new MembershipFee();
         membershipFee.setEligibleFrom(rs.getDate("eligible_from"));
-        membershipFee.setFrequency(rs.getString("frequency"));
+        membershipFee.setFrequency(Frequency.valueOf(rs.getString("frequency")));
         membershipFee.setAmount(rs.getDouble("amount"));
         membershipFee.setLabel(rs.getString("label"));
         membershipFee.setId(rs.getString("id"));

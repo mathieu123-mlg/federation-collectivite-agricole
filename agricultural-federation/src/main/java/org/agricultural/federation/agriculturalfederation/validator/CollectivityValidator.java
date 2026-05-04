@@ -15,6 +15,7 @@ import java.util.Set;
 
 @Component
 public class CollectivityValidator {
+/*
     private final CollectivityRepository collectivityRepository;
 
     public CollectivityValidator(CollectivityRepository collectivityRepository) {
@@ -89,4 +90,5 @@ public class CollectivityValidator {
             throw new BadRequestException("CollectivityTransaction.from must before to");
         }
     }
+*/
 }
