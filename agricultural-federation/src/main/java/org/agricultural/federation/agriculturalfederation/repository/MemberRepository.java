@@ -8,201 +8,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class MemberRepository {
     private final Connection connection;
     private final RowMapper rowMapper;
 
-    public MemberRepository(Connection connection, RowMapper rowMapper) {/*public Member save(CreateMember cm) {
-        String sql = """
-                INSERT INTO member
-                (id, first_name, last_name, birthdate, gender, address,
-                 profession, phone_number, email)
-                VALUES (?, ?, ?, ?, ?::gender, ?, ?, ?, ?)
-                RETURNING id, first_name, last_name, birthdate, gender,
-                          address, profession, phone_number, email
-                """;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, cm.getFirstName());
-            ps.setString(2, cm.getLastName());
-            ps.setDate(3, cm.getBirthDate());
-            ps.setString(4, cm.getGender().name());
-            ps.setString(5, cm.getAddress());
-            ps.setString(6, cm.getProfession());
-            ps.setString(7, cm.getPhoneNumber());
-            ps.setString(8, cm.getEmail());
-            ps.setTimestamp(9, Timestamp.from(Instant.now()));
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rowMapper.mapToMember(rs);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to save member", e);
-        }
-        throw new RuntimeException("Member not saved");
-    }*//*public void saveReferee(String candidateId, Integer refereeId,
-                            String collectivityId, String relationship) {
-        String sql = """
-                INSERT INTO member_referrals
-                (member_col_id, referrer_col_id, collectivity_id, member_relation)
-                VALUES (?, ?, ?, ?)
-                """;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, candidateId);
-            ps.setInt(2, refereeId);
-            ps.setString(3, collectivityId);
-            ps.setString(4, relationship);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }*//*    public void saveMemberCollectivity(String memberId, String collectivityId) {
-        String sql = """
-                INSERT INTO member_collectivity
-                (id, member_id, collectivity_id)
-                VALUES (?, ?)
-                """;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, memberId);
-            ps.setString(2, collectivityId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }*//*public boolean existsById(Integer id) {
-        String sql = "SELECT 1 FROM member WHERE id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }*//*public boolean isSeniorMember(Integer memberId) {
-        String sql = """
-                SELECT occupation FROM member_collectivity mc
-                """;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, memberId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    MemberOccupation role = MemberOccupation.valueOf(rs.getString("role"));
-                    if (role != MemberOccupation.JUNIOR) {
-                        return true;
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return false;
-    }*//*public Integer getCollectivityIdOfMember(Integer memberId) {
-        String sql = """
-                SELECT collectivity_id FROM member_collectivity
-                WHERE member_id = ?
-                """;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, memberId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt("collectivity_id");
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
-    }*//*public void savePayment(Integer memberId, CreateMemberPayment cp) {
-        String sql = """
-                    INSERT INTO payment
-                    (id, collectivity_id, member_col_id, amount, account_col_id, payment_mode, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?::payment_mode, CURRENT_TIMESTAMP)
-                """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, memberId);
-            ps.setDouble(2, cp.getAmount());
-            ps.setString(3, cp.getPaymentMode().name());
-            ps.setInt(4, Integer.parseInt(cp.getMembershipFeeIdentifier()));
-            ps.setInt(5, Integer.parseInt(cp.getAccountCreditedIdentifier()));
-
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }*//*    public List<Member> createMembers(List<CreateMember> newMembers) {
-        String sql = """
-                insert into member (id, first_name, last_name, birthdate, gender, address, profession, phone_number, email)
-                values (?, ?, ?, ?::gender, ?, ?, ?, ?)
-                on conflict (first_name, last_name) do nothing
-                """;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            Integer index = getMemberNextId(connection);
-            List<Member> members = new ArrayList<>();
-            for (CreateMember newMember : newMembers) {
-                String id = "M" + index;
-                ps.setString(1, id);
-                ps.setString(2, newMember.getFirstName());
-                ps.setString(3, newMember.getLastName());
-                ps.setDate(4, newMember.getBirthDate());
-                ps.setString(5, newMember.getGender().name());
-                ps.setString(6, newMember.getAddress());
-                ps.setString(7, newMember.getProfession());
-                ps.setString(8, newMember.getPhoneNumber());
-                ps.setString(9, newMember.getEmail());
-
-                ps.addBatch();
-                members.add(new Member(newMember.getFirstName(), newMember.getLastName(), newMember.getBirthDate(),
-                        newMember.getGender(), newMember.getAddress(), newMember.getProfession(),
-                        newMember.getPhoneNumber(), newMember.getEmail(), newMember.getOccupation(), id, newMember.getReferees()));
-
-                index++;
-            }
-            ps.executeBatch();
-            return members;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public List<?> saveMembersCollectivity(List<CreateMember> newMembers) {
-        String sql = """
-                insert into member_collectivity (id, first_name, last_name, birthdate, gender, address, profession,  phone_number, email) values (?, ?, ?, ?, ?::gender, ?, ?, ?, ?) on conflict do nothing
-                """;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            List<?> members = new ArrayList<>();
-            for (CreateMember newMember : newMembers) {
-               ps.setString(1, newMember.getCollectivityIdentifier());
-               ps.setString(2, newMember.getCollectivityIdentifier());
-               ps.setString(3, newMember.getCollectivityIdentifier());
-
-                ps.addBatch();
-                members.add(new Member(newMember.getFirstName(), newMember.getLastName(), newMember.getBirthDate(),
-                        newMember.getGender(), newMember.getAddress(), newMember.getProfession(),
-                        newMember.getPhoneNumber(), newMember.getEmail(), newMember.getOccupation(), id, newMember.getReferees()));
-            }
-            ps.executeBatch();
-            return members;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Integer getMemberNextId(Connection connection) {
-        String sql = "select coalesce(max(cast(substring(id, 2) AS INTEGER)), 0) + 1 as max_number from member";
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-            return 1;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }*/
+    public MemberRepository(Connection connection, RowMapper rowMapper) {
         this.connection = connection;
         this.rowMapper = rowMapper;
     }
@@ -210,7 +23,8 @@ public class MemberRepository {
     public List<Member> createMembers(Connection connection, List<CreateMember> membersToCreate) {
         String sql = """
                 insert into member (id, first_name, last_name, birthdate, gender, address, profession, phone_number, email)
-                values (?, ?, ?, ?, ?::gender, ?, ?, ?, ?)""";
+                values (?, ?, ?, ?, ?::gender, ?, ?, ?, ?)
+                """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             List<Member> members = new ArrayList<>();
             int index = getMemberNextIndex(connection);
@@ -302,8 +116,9 @@ public class MemberRepository {
         String sql = """
                 select coalesce(max(cast(substring(id, 5) AS INTEGER)), 0) + 1 as id
                 from member_collectivity
-                where id ilike %s limit 1;
-                """.formatted("C" + reference + "-M%");
+                where id ilike '%s' limit 1;
+                """;
+        sql = sql.formatted("C" + reference + "-M%");
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
@@ -328,9 +143,9 @@ public class MemberRepository {
                         ps.setString(2, member.getId());
                         ps.setString(3, referee.getMemberId());
                         ps.setString(4, referee.getRelationship());
+                        ps.addBatch();
                     }
                 }
-                ps.addBatch();
             }
             ps.executeBatch();
         } catch (SQLException e) {
@@ -340,20 +155,22 @@ public class MemberRepository {
 
     public List<MemberPayment> createMembersPayments(String id, List<CreateMemberPayment> createMembersPayments) {
         String sql = """
-                    insert into payment (collectivity_id, member_col_id, amount, account_col_id, payment_mode, created_at)
-                    values (?, ?, ?, ?, ?::payment_mode, current_timestamp)
-                    returning id, collectivity_id, member_col_id, amount, account_col_id, payment_mode, created_at;
+                    insert into payment (id, collectivity_id, member_col_id, amount, account_col_id, payment_mode, created_at)
+                    values (?, ?, ?, ?, ?, ?::payment_mode, current_timestamp)
+                    returning id, amount, payment_mode, account_col_id, created_at;
                 """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             connection.setAutoCommit(false);
-            createMembersTransaction(connection, id, createMembersPayments);
+            int index = getNextTransactionId(connection);
+            createMembersTransaction(index, connection, id, createMembersPayments);
             List<MemberPayment> memberPayments = new ArrayList<>();
             for (CreateMemberPayment cp : createMembersPayments) {
-                ps.setString(1, id);
-                ps.setString(2, cp.getMembershipFeeIdentifier());
-                ps.setDouble(3, cp.getAmount());
-                ps.setString(4, cp.getAccountCreditedIdentifier());
-                ps.setString(5, cp.getPaymentMode().name());
+                ps.setInt(1, index++);
+                ps.setString(2, id);
+                ps.setString(3, cp.getMembershipFeeIdentifier());
+                ps.setDouble(4, cp.getAmount());
+                ps.setString(5, cp.getAccountCreditedIdentifier());
+                ps.setString(6, cp.getPaymentMode().name());
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     memberPayments.add(new MemberPayment(
@@ -363,11 +180,12 @@ public class MemberRepository {
                             findAccountCreditedByAccountCollectivityId(connection, rs.getString("account_col_id")),
                             rs.getTimestamp("created_at").toInstant()
                     ));
+                } else {
+                    throw new RuntimeException("Payment not found");
                 }
-                throw new RuntimeException("payment not found");
             }
-            connection.setAutoCommit(true);
             try {
+                connection.setAutoCommit(true);
                 return memberPayments;
             } catch (RuntimeException e) {
                 connection.rollback();
@@ -423,21 +241,45 @@ public class MemberRepository {
         }
     }
 
-    private void createMembersTransaction(Connection connection, String id, List<CreateMemberPayment> createMembersPayments) {
+    private void createMembersTransaction(int index, Connection connection, String id, List<CreateMemberPayment> createMembersPayments) {
         String sql = """
-                    insert into transaction (collectivity_id, member_col_id, amount, account_col_id, payment_mode, created_at)
-                    values (?, ?, ?, ?, ?::payment_mode, current_timestamp)
+                    insert into transaction (id, collectivity_id, member_col_id, amount, account_col_id, payment_mode, created_at)
+                    values (?, ?, ?, ?, ?, ?::payment_mode, current_timestamp)
                 """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             for (CreateMemberPayment cp : createMembersPayments) {
-                ps.setString(1, id);
-                ps.setString(2, cp.getMembershipFeeIdentifier());
-                ps.setDouble(3, cp.getAmount());
-                ps.setString(4, cp.getAccountCreditedIdentifier());
-                ps.setString(5, cp.getPaymentMode().name());
+                ps.setInt(1, index++);
+                ps.setString(2, id);
+                ps.setString(3, cp.getMembershipFeeIdentifier());
+                ps.setDouble(4, cp.getAmount());
+                ps.setString(5, cp.getAccountCreditedIdentifier());
+                ps.setString(6, cp.getPaymentMode().name());
                 ps.addBatch();
             }
             ps.executeBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private int getNextTransactionId(Connection connection) {
+        String sql = "select coalesce(max(id), 0) + 1 as id from transaction";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+            throw new RuntimeException("Transaction or payment not found");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean existingId(String memberId) {
+        try (PreparedStatement ps = connection.prepareStatement("select id from member_collectivity where id = ?")) {
+            ps.setString(1, memberId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

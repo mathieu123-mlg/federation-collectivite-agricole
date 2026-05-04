@@ -1,6 +1,15 @@
 package org.agricultural.federation.agriculturalfederation.service;
 
-import org.agricultural.federation.agriculturalfederation.entity.*;
+import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
+import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
+import org.agricultural.federation.agriculturalfederation.entity.CollectivityStructure;
+import org.agricultural.federation.agriculturalfederation.entity.CreateCollectivity;
+import org.agricultural.federation.agriculturalfederation.entity.CreateMembershipFee;
+import org.agricultural.federation.agriculturalfederation.entity.FinancialAccount;
+import org.agricultural.federation.agriculturalfederation.entity.Member;
+import org.agricultural.federation.agriculturalfederation.entity.MemberOccupation;
+import org.agricultural.federation.agriculturalfederation.entity.MembershipFee;
+import org.agricultural.federation.agriculturalfederation.entity.Transaction;
 import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
 import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
 import org.agricultural.federation.agriculturalfederation.exception.UnAuthorizedException;
@@ -15,42 +24,14 @@ import java.util.List;
 @Service
 public class CollectivityService {
     private final CollectivityRepository collectivityRepository;
-    private final CollectivityValidator collectivityValidator;
 
-    public CollectivityService(CollectivityRepository collectivityRepository, CollectivityValidator collectivityValidator) {
+    public CollectivityService(CollectivityRepository collectivityRepository) {
         this.collectivityRepository = collectivityRepository;
-        this.collectivityValidator = collectivityValidator;
     }
 
     public Collectivity findCollectivityById(String id) {
         return collectivityRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Collectivity.id={" + id + ") is not found"));
-    }
-
-    private static void validateStructure(CollectivityStructure collectivityStructure) {
-        Member president = collectivityStructure.getPresident();
-        Member vice_president = collectivityStructure.getVicePresident();
-        Member treasurer = collectivityStructure.getTreasurer();
-        Member secretary = collectivityStructure.getSecretary();
-
-        if (president == null || treasurer == null || secretary == null) {
-            throw new NotFoundException("Cannot create collectivity without PRESIDENT, TREASURER and SECRETARY");
-        }
-
-        if (!president.getOccupation().equals(MemberOccupation.PRESIDENT)) {
-            throw new IllegalArgumentException("President occupation is required for President");
-        }
-        if (vice_president != null) {
-            if (!vice_president.getOccupation().equals(MemberOccupation.VICE_PRESIDENT)) {
-                throw new IllegalArgumentException("Vice president occupation is required for Vice president");
-            }
-        }
-        if (!treasurer.getOccupation().equals(MemberOccupation.TREASURER)) {
-            throw new IllegalArgumentException("Treasurer occupation is required for Treasurer");
-        }
-        if (!secretary.getOccupation().equals(MemberOccupation.SECRETARY)) {
-            throw new IllegalArgumentException("Secretary occupation is required for Secretary");
-        }
     }
 
     public MembershipFee getMembershipFeeById(String id) {
@@ -112,7 +93,8 @@ public class CollectivityService {
         }
         List<Collectivity> collectivityList = collectivityRepository.createCollectivity(newCollectivity);
         for (Collectivity collectivity : collectivityList) {
-            collectivity.setMembers(collectivityRepository.getCollectivityMembersById(collectivity.getId()));
+            List<Member> referees = collectivityRepository.getCollectivityMembersById(collectivity.getId());
+            collectivity.setMembers(referees);
         }
         return collectivityList;
     }
@@ -125,13 +107,15 @@ public class CollectivityService {
     public List<MembershipFee> createMembershipFee(String id, List<CreateMembershipFee> createMembershipFees) {
         findCollectivityById(id);
         for (CreateMembershipFee createMembershipFee : createMembershipFees) {
+/*
             if (createMembershipFee.getEligibleFrom().toInstant().isAfter(Instant.now())) {
                 throw new BadRequestException("MembershipFee.eligibleFrom must be before current_date.");
             }
-            if (createMembershipFee.getAmount() <= 0) {
+*/
+            if (createMembershipFee.getAmount() < 0) {
                 throw new BadRequestException("MembershipFee.amount must be higher than 0.");
             }
-            if (createMembershipFee.getFrequency().isBlank()) {
+            if (createMembershipFee.getFrequency().name().isBlank()) {
                 throw new BadRequestException("MembershipFee.frequency is required.");
             }
             if (createMembershipFee.getLabel().isBlank()) {
@@ -139,5 +123,31 @@ public class CollectivityService {
             }
         }
         return collectivityRepository.createMembershipFee(id, createMembershipFees);
+    }
+
+    private static void validateStructure(CollectivityStructure collectivityStructure) {
+        Member president = collectivityStructure.getPresident();
+        Member vice_president = collectivityStructure.getVicePresident();
+        Member treasurer = collectivityStructure.getTreasurer();
+        Member secretary = collectivityStructure.getSecretary();
+
+        if (president == null || treasurer == null || secretary == null) {
+            throw new NotFoundException("Cannot create collectivity without PRESIDENT, TREASURER and SECRETARY");
+        }
+
+        if (!president.getOccupation().equals(MemberOccupation.PRESIDENT)) {
+            throw new IllegalArgumentException("President occupation is required for President");
+        }
+        if (vice_president != null) {
+            if (!vice_president.getOccupation().equals(MemberOccupation.VICE_PRESIDENT)) {
+                throw new IllegalArgumentException("Vice president occupation is required for Vice president");
+            }
+        }
+        if (!treasurer.getOccupation().equals(MemberOccupation.TREASURER)) {
+            throw new IllegalArgumentException("Treasurer occupation is required for Treasurer");
+        }
+        if (!secretary.getOccupation().equals(MemberOccupation.SECRETARY)) {
+            throw new IllegalArgumentException("Secretary occupation is required for Secretary");
+        }
     }
 }

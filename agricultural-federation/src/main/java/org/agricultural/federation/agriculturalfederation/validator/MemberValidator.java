@@ -1,18 +1,9 @@
 package org.agricultural.federation.agriculturalfederation.validator;
 
-import java.util.List;
-
-import org.agricultural.federation.agriculturalfederation.entity.CreateMember;
-import org.agricultural.federation.agriculturalfederation.entity.Referee;
-import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
-import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
-import org.agricultural.federation.agriculturalfederation.repository.MemberRepository;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MemberValidator {
-
-/*
+public class MemberValidator {/*
     private final MemberRepository memberRepository;
 
     public MemberValidator(MemberRepository memberRepository) {

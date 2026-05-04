@@ -3,9 +3,8 @@ package org.agricultural.federation.agriculturalfederation.entity;
 import java.sql.Date;
 
 public class CreateMembershipFee {
-
     private Date eligibleFrom;
-    private String frequency;
+    private Frequency frequency;
     private Double amount;
     private String label;
 
@@ -17,11 +16,11 @@ public class CreateMembershipFee {
         this.eligibleFrom = eligibleFrom;
     }
 
-    public String getFrequency() {
+    public Frequency getFrequency() {
         return frequency;
     }
 
-    public void setFrequency(String frequency) {
+    public void setFrequency(Frequency frequency) {
         this.frequency = frequency;
     }
 

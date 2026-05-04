@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -27,7 +28,6 @@ public class RowMapper {
 
     public Member mapToMember(ResultSet rs) throws SQLException {
         return new Member(
-                rs.getString("member_id"),
                 rs.getString("first_name"),
                 rs.getString("last_name"),
                 rs.getDate("birthdate"),
@@ -36,7 +36,9 @@ public class RowMapper {
                 rs.getString("profession"),
                 rs.getString("phone_number"),
                 rs.getString("email"),
-                MemberOccupation.valueOf(rs.getString("occupation"))
+                MemberOccupation.valueOf(rs.getString("occupation")),
+                rs.getString("member_id"),
+                new ArrayList<>()
         );
     }
 

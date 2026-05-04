@@ -9,7 +9,7 @@ create table if not exists collectivity
 
 alter table collectivity add column updated_at timestamp;
 
-create type gender as enum ('M', 'F');
+create type gender as enum ('MALE', 'FEMALE');
 create type occupation as enum ('PRESIDENT', 'VICE_PRESIDENT', 'TREASURER', 'SECRETARY', 'SENIOR', 'JUNIOR');
 
 create table if not exists member
@@ -18,7 +18,7 @@ create table if not exists member
     first_name   varchar(100) not null,
     last_name    varchar(100) not null,
     birthdate    date         not null,
-    gender       gender       not null default 'M',
+    gender       gender       not null default 'MALE',
     address      varchar      not null,
     profession   varchar(100) not null,
     phone_number varchar(30)  not null,
@@ -54,7 +54,7 @@ create table if not exists membership_fee
     status          status  not null                    default 'INACTIVE',
     frequency       frequency                           default 'MONTHLY',
     eligible_from     date    not null                    default current_date,
-    amount          numeric(10, 2) check ( amount > 0 ) default 0,
+    amount          numeric(10, 2) check ( amount >= 0 ) default 0,
     collectivity_id varchar references collectivity (id)
 );
 

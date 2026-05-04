@@ -1,21 +1,9 @@
 package org.agricultural.federation.agriculturalfederation.validator;
 
-import org.agricultural.federation.agriculturalfederation.entity.CollectivityStructure;
-import org.agricultural.federation.agriculturalfederation.entity.CreateCollectivity;
-import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
-import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
-import org.agricultural.federation.agriculturalfederation.repository.CollectivityRepository;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.HashSet;
-import java.util.Set;
-
 @Component
-public class CollectivityValidator {
-/*
+public class CollectivityValidator {/*
     private final CollectivityRepository collectivityRepository;
 
     public CollectivityValidator(CollectivityRepository collectivityRepository) {

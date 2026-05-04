@@ -1,6 +1,7 @@
 package org.agricultural.federation.agriculturalfederation.entity;
 
 import java.sql.Date;
+import java.util.Objects;
 
 public abstract class MemberInformation {
     private String firstName;
@@ -95,5 +96,32 @@ public abstract class MemberInformation {
 
     public void setOccupation(MemberOccupation occupation) {
         this.occupation = occupation;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        MemberInformation that = (MemberInformation) o;
+        return Objects.equals(firstName, that.firstName) && Objects.equals(lastName, that.lastName) && Objects.equals(birthDate, that.birthDate) && gender == that.gender && Objects.equals(address, that.address) && Objects.equals(profession, that.profession) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(email, that.email) && occupation == that.occupation;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName, birthDate, gender, address, profession, phoneNumber, email, occupation);
+    }
+
+    @Override
+    public String toString() {
+        return "MemberInformation{" +
+               "firstName='" + firstName + '\'' +
+               ", lastName='" + lastName + '\'' +
+               ", birthDate=" + birthDate +
+               ", gender=" + gender +
+               ", address='" + address + '\'' +
+               ", profession='" + profession + '\'' +
+               ", phoneNumber='" + phoneNumber + '\'' +
+               ", email='" + email + '\'' +
+               ", occupation=" + occupation +
+               '}';
     }
 }
