@@ -1,4 +1,4 @@
-drop database agricultural_federation;
+drop database agricultural_federation_db;
 
-DROP OWNED BY agricultural_federation_manager;
-DROP USER IF EXISTS agricultural_federation_manager;
+DROP OWNED BY user_manager;
+DROP USER IF EXISTS user_manager;
