@@ -1,15 +1,6 @@
 package org.agricultural.federation.agriculturalfederation.service;
 
-import org.agricultural.federation.agriculturalfederation.entity.Collectivity;
-import org.agricultural.federation.agriculturalfederation.entity.CollectivityIdentifier;
-import org.agricultural.federation.agriculturalfederation.entity.CollectivityStructure;
-import org.agricultural.federation.agriculturalfederation.entity.CreateCollectivity;
-import org.agricultural.federation.agriculturalfederation.entity.CreateMembershipFee;
-import org.agricultural.federation.agriculturalfederation.entity.FinancialAccount;
-import org.agricultural.federation.agriculturalfederation.entity.Member;
-import org.agricultural.federation.agriculturalfederation.entity.MemberOccupation;
-import org.agricultural.federation.agriculturalfederation.entity.MembershipFee;
-import org.agricultural.federation.agriculturalfederation.entity.Transaction;
+import org.agricultural.federation.agriculturalfederation.entity.*;
 import org.agricultural.federation.agriculturalfederation.exception.BadRequestException;
 import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
 import org.agricultural.federation.agriculturalfederation.exception.UnAuthorizedException;
@@ -93,8 +84,8 @@ public class CollectivityService {
         }
         List<Collectivity> collectivityList = collectivityRepository.createCollectivity(newCollectivity);
         for (Collectivity collectivity : collectivityList) {
-            List<Member> referees = collectivityRepository.getCollectivityMembersById(collectivity.getId());
-            collectivity.setMembers(referees);
+            List<Member> members = collectivityRepository.getCollectivityMembersById(collectivity.getId());
+            collectivity.setMembers(members);
         }
         return collectivityList;
     }
