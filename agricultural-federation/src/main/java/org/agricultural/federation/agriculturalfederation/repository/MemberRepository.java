@@ -1,6 +1,7 @@
 package org.agricultural.federation.agriculturalfederation.repository;
 
 import org.agricultural.federation.agriculturalfederation.entity.*;
+import org.agricultural.federation.agriculturalfederation.exception.NotFoundException;
 import org.agricultural.federation.agriculturalfederation.mapper.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -8,7 +9,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class MemberRepository {
@@ -29,7 +33,8 @@ public class MemberRepository {
             List<Member> members = new ArrayList<>();
             int index = getMemberNextIndex(connection);
             for (CreateMember createMember : membersToCreate) {
-                ps.setString(1, "M" + index++);
+                String memberId = "M" + index;
+                ps.setString(1, memberId);
                 ps.setString(2, createMember.getFirstName());
                 ps.setString(3, createMember.getLastName());
                 ps.setDate(4, createMember.getBirthDate());
@@ -39,7 +44,9 @@ public class MemberRepository {
                 ps.setString(8, createMember.getPhoneNumber());
                 ps.setString(9, createMember.getEmail());
                 ps.addBatch();
-                members.add(createMember.mapToMember());
+                Member member = createMember.mapToMember(memberId);
+                members.add(member);
+                index++;
             }
             ps.executeBatch();
             return members;
@@ -68,13 +75,14 @@ public class MemberRepository {
             connection.setAutoCommit(false);
             List<Member> members = createMembers(connection, membersToCreate);
             List<String> collectivityIdentifiers = membersToCreate.stream().map(CreateMember::getCollectivityIdentifier).toList();
-            attachMemberReferrals(connection, members, collectivityIdentifiers);
             attachMemberOccupation(connection, members, collectivityIdentifiers);
-            connection.setAutoCommit(true);
+            attachMemberReferrals(connection, members, collectivityIdentifiers);
             try {
+                connection.setAutoCommit(true);
                 return members;
             } catch (RuntimeException e) {
                 connection.rollback();
+                connection.close();
                 throw new RuntimeException(e);
             }
         } catch (SQLException e) {
@@ -133,14 +141,15 @@ public class MemberRepository {
     private void attachMemberReferrals(Connection connection, List<Member> membersToCreate, List<String> collectivityIdentifiers) {
         String sql = """
                 insert into member_referrals (collectivity_id, member_col_id, referrer_col_id, member_relation)
-                values (?, ?, ?, ?)""";
+                values (?, ?, ?, ?)
+                """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             for (int i = 0; i < membersToCreate.size(); i++) {
                 Member member = membersToCreate.get(i);
                 if (!member.getReferees().isEmpty()) {
                     for (Referee referee : member.getReferees()) {
                         ps.setString(1, collectivityIdentifiers.get(i));
-                        ps.setString(2, member.getId());
+                        ps.setString(2, getMemberCollectivityIdByMemberId(connection, member.getId(), collectivityIdentifiers.get(i)));
                         ps.setString(3, referee.getMemberId());
                         ps.setString(4, referee.getRelationship());
                         ps.addBatch();
@@ -148,6 +157,24 @@ public class MemberRepository {
                 }
             }
             ps.executeBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getMemberCollectivityIdByMemberId(Connection connection, String memberId, String collectivityId) {
+        String sql = """
+                select id from member_collectivity
+                where member_id = ? and collectivity_id = ?;
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, memberId);
+            ps.setString(2, collectivityId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("id");
+            }
+            throw new NotFoundException("member_collectivity.id is not found");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -241,7 +268,8 @@ public class MemberRepository {
         }
     }
 
-    private void createMembersTransaction(int index, Connection connection, String id, List<CreateMemberPayment> createMembersPayments) {
+    private void createMembersTransaction(int index, Connection connection, String
+            id, List<CreateMemberPayment> createMembersPayments) {
         String sql = """
                     insert into transaction (id, collectivity_id, member_col_id, amount, account_col_id, payment_mode, created_at)
                     values (?, ?, ?, ?, ?, ?::payment_mode, current_timestamp)

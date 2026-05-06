@@ -50,9 +50,9 @@ public class CreateMember extends MemberInformation {
         this.membershipDuesPaid = membershipDuesPaid;
     }
 
-    public Member mapToMember() {
+    public Member mapToMember(String memberId) {
         return new Member(getFirstName(), getLastName(), getBirthDate(), getGender(), getAddress(), getProfession(),
-                getPhoneNumber(), getEmail(), getOccupation(), null, getReferees()
+                getPhoneNumber(), getEmail(), getOccupation(), memberId, getReferees()
         );
     }
 
