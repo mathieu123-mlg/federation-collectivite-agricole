@@ -21,7 +21,7 @@ public class CollectivityRepository {
         List<Collectivity> memberList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(
                 """
-                        insert into "collectivity" (id, name, number, location, president_id, vice_president_id, treasurer_id, secretary_id) 
+                        insert into collectivity (id, name, number, location, president_id, vice_president_id, treasurer_id, secretary_id) 
                         values (?, ?, ?, ?, ?, ?, ?, ?) 
                         on conflict (id) do update set name = excluded.name,
                                                        number = excluded.number,
@@ -61,7 +61,7 @@ public class CollectivityRepository {
     public boolean isNumberExists(Integer number) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("""
                 select id
-                from "collectivity"
+                from collectivity
                 where number = ?
                 """)) {
             preparedStatement.setInt(1, number);
@@ -78,7 +78,7 @@ public class CollectivityRepository {
     public boolean isNameExists(String name) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("""
                 select id
-                from "collectivity"
+                from collectivity
                 where name = ?
                 """)) {
             preparedStatement.setString(1, name);
@@ -95,7 +95,7 @@ public class CollectivityRepository {
     public Optional<Collectivity> findById(String id) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("""
                 select id, name, number, location, president_id, vice_president_id, treasurer_id, secretary_id
-                from "collectivity"
+                from collectivity
                 where id = ?
                 """)) {
             preparedStatement.setString(1, id);
@@ -113,8 +113,8 @@ public class CollectivityRepository {
         List<Collectivity> collectivities = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement("""
                 select id, name, number, location, president_id, vice_president_id, treasurer_id, secretary_id
-                from "collectivity" 
-                join "collectivity_member" on collectivity.id = collectivity_member.collectivity_id
+                from collectivity
+                join collectivity_member on collectivity.id = collectivity_member.collectivity_id
                 where collectivity_member.member_id = ?
                 """)) {
             preparedStatement.setString(1, memberId);

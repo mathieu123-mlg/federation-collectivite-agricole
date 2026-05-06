@@ -1,17 +1,20 @@
 package edu.hei.school.agricultural.service;
 
-import edu.hei.school.agricultural.entity.Collectivity;
-import edu.hei.school.agricultural.entity.MembershipFee;
+import edu.hei.school.agricultural.entity.*;
 import edu.hei.school.agricultural.exception.BadRequestException;
 import edu.hei.school.agricultural.exception.NotFoundException;
 import edu.hei.school.agricultural.repository.CollectivityRepository;
+import edu.hei.school.agricultural.repository.FinancialAccountRepository;
 import edu.hei.school.agricultural.repository.MembershipFeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static edu.hei.school.agricultural.entity.ActivityStatus.ACTIVE;
+import static edu.hei.school.agricultural.entity.PaymentMode.*;
 import static java.util.UUID.randomUUID;
 
 @Service
@@ -19,6 +22,7 @@ import static java.util.UUID.randomUUID;
 public class CollectivityService {
     private final CollectivityRepository collectivityRepository;
     private final MembershipFeeRepository membershipFeeRepository;
+    private final FinancialAccountRepository financialAccountRepository;
 
     public List<Collectivity> createCollectivities(List<Collectivity> collectivities) {
         for (Collectivity collectivity : collectivities) {
@@ -66,5 +70,63 @@ public class CollectivityService {
             membershipFee.setCollectivityOwner(collectivity);
         }
         return membershipFeeRepository.saveAll(membershipFees);
+    }
+
+    public List<FinancialAccount> getFinancialAccounts(String collectivityIdentifier) {
+        Collectivity collectivity = collectivityRepository.findById(collectivityIdentifier)
+                .orElseThrow(() ->
+                        new NotFoundException("Collectivity.id= " + collectivityIdentifier + " not found"));
+
+        CashAccount cashAccount = financialAccountRepository.getCashAccountByCollectivityId(collectivity.getId());
+        List<BankAccount> bankAccounts = financialAccountRepository.getBankAccountsByCollectivityId(collectivity.getId());
+        List<MobileBankingAccount> mobileBankingAccountsByCollectivityId = financialAccountRepository.getMobileBankingAccountsByCollectivityId(collectivity.getId());
+
+        return Stream.concat(
+                Stream.concat(
+                        Stream.of(cashAccount),
+                        bankAccounts.stream()),
+                mobileBankingAccountsByCollectivityId.stream()
+        ).toList();
+    }
+
+    public List<CollectivityTransaction> getTransactionsByCollectivity(String collectivityIdentifier, LocalDate from, LocalDate to) {
+        List<FinancialAccount> financialAccounts = getFinancialAccounts(collectivityIdentifier);
+
+        return financialAccounts.stream()
+                .map(financialAccount -> {
+                    var transactionList = financialAccount.getTransactions().stream()
+                            .filter(transaction -> (transaction.getCreationDate().isAfter(from) || transaction.getCreationDate().equals(from))
+                                    && (transaction.getCreationDate().isBefore(to) || transaction.getCreationDate().equals(to)))
+                            .toList();
+                    var paymentMode = getPaymentMode(financialAccount);
+                    return transactionList.stream()
+                            .map(transaction -> {
+                                CollectivityTransaction collectivityTransaction = CollectivityTransaction.builder()
+                                        .id(transaction.getId())
+                                        .type(transaction.getType())
+                                        .amount(transaction.getAmount())
+                                        .creationDate(transaction.getCreationDate())
+                                        .accountCredited(financialAccount)
+                                        .paymentMode(paymentMode)
+                                        .memberDebited(transaction.getMemberDebited())
+                                        .build();
+                                return collectivityTransaction;
+                            })
+                            .toList();
+                })
+                .flatMap(List::stream)
+                .toList();
+    }
+
+    private PaymentMode getPaymentMode(FinancialAccount financialAccount) {
+        PaymentMode paymentMode;
+        paymentMode = switch (financialAccount) {
+            case BankAccount ignored -> BANK_TRANSFER;
+            case MobileBankingAccount ignored -> MOBILE_BANKING;
+            case CashAccount ignored -> CASH;
+            default ->
+                    throw new IllegalArgumentException("Unknown financial account type " + financialAccount.getClass().getTypeName());
+        };
+        return paymentMode;
     }
 }
