@@ -1,16 +1,16 @@
-package edu.hei.school.agricultural.controller.mapper;
+package edu.hei.school.agricultural.mapper;
+
+import edu.hei.school.agricultural.entity.Activity;
+import edu.hei.school.agricultural.entity.ActivityType;
+import edu.hei.school.agricultural.entity.MemberOccupation;
+import edu.hei.school.agricultural.entity.MonthlyRecurrenceRule;
+import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.stereotype.Component;
-
-import edu.hei.school.agricultural.entity.Activity;
-import edu.hei.school.agricultural.entity.ActivityType;
-import edu.hei.school.agricultural.entity.MemberOccupation;
-import edu.hei.school.agricultural.entity.MonthlyRecurrenceRule;
 @Component
 public class ActivityMapper {
     public Activity mapFromResultSet(ResultSet rs) throws SQLException {
@@ -26,7 +26,7 @@ public class ActivityMapper {
 
         if (rs.getDate("executive_date") != null) {
             activity.setExecutiveDate(
-                rs.getDate("executive_date").toLocalDate());
+                    rs.getDate("executive_date").toLocalDate());
         }
 
         Integer weekOrdinal = rs.getObject("week_ordinal", Integer.class);

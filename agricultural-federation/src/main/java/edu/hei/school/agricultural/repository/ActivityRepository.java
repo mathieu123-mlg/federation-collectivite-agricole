@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
-import edu.hei.school.agricultural.controller.mapper.ActivityMapper;
+import edu.hei.school.agricultural.mapper.ActivityMapper;
 import edu.hei.school.agricultural.entity.Activity;
 import edu.hei.school.agricultural.entity.MemberOccupation;
 import edu.hei.school.agricultural.entity.MonthlyRecurrenceRule;
@@ -82,8 +82,7 @@ private final Connection connection;
                 ps.setString(1, id);
                 ps.setString(2, a.getCollectivityId());
                 ps.setString(3, a.getLabel());
-                ps.setString(4, a.getActivityType() == null ? null :
-                    a.getActivityType().name());
+                ps.setString(4, a.getActivityType() == null ? null : a.getActivityType().name());
 
                 MonthlyRecurrenceRule rule = a.getRecurrenceRule();
                 if (rule != null) {
@@ -108,7 +107,6 @@ private final Connection connection;
                 } else {
                     ps.setNull(8, Types.VARCHAR);
                 }
-
                 ps.addBatch();
             }
             ps.executeBatch();

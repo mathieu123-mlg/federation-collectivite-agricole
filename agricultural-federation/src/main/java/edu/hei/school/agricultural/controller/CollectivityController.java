@@ -6,10 +6,14 @@ import edu.hei.school.agricultural.controller.dto.CreateActivityMemberAttendance
 import edu.hei.school.agricultural.controller.dto.CreateCollectivity;
 import edu.hei.school.agricultural.controller.dto.CreateCollectivityActivityDto;
 import edu.hei.school.agricultural.controller.dto.CreateMembershipFee;
-import edu.hei.school.agricultural.controller.dto.MemberDescription;
-import edu.hei.school.agricultural.controller.dto.MonthlyRecurrenceRuleDto;
+import edu.hei.school.agricultural.controller.mapper.ActivityMemberAttendanceDtoMapper;
 import edu.hei.school.agricultural.controller.mapper.CollectivityDtoMapper;
+import edu.hei.school.agricultural.controller.mapper.CollectivityLocalStatisticsDtoMapper;
+import edu.hei.school.agricultural.controller.mapper.CollectivityOverallStatisticsDtoMapper;
+import edu.hei.school.agricultural.controller.mapper.CreateCollectivityActivityDtoMapper;
+import edu.hei.school.agricultural.controller.mapper.FinancialAccountDtoMapper;
 import edu.hei.school.agricultural.controller.mapper.MembershipFeeDtoMapper;
+import edu.hei.school.agricultural.controller.mapper.TransactionDtoMapper;
 import edu.hei.school.agricultural.entity.Activity;
 import edu.hei.school.agricultural.entity.ActivityType;
 import edu.hei.school.agricultural.entity.Attendance;
@@ -26,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,12 +42,19 @@ public class CollectivityController {
     private final CollectivityDtoMapper collectivityDtoMapper;
     private final MembershipFeeDtoMapper membershipFeeDtoMapper;
     private final CollectivityService collectivityService;
+    private final FinancialAccountDtoMapper financialAccountDtoMapper;
+    private final TransactionDtoMapper transactionDtoMapper;
+    private final CollectivityLocalStatisticsDtoMapper collectivityLocalStatisticsDtoMapper;
+    private final CollectivityOverallStatisticsDtoMapper collectivityOverallStatisticsDtoMapper;
     private final MemberRepository memberRepository;
+    private final ActivityMemberAttendanceDtoMapper activityMemberAttendanceDtoMapper;
+    private final CreateCollectivityActivityDtoMapper createCollectivityActivityDtoMapper;
 
     @GetMapping("/collectivities/{id}")
     public ResponseEntity<?> getCollectivityById(@PathVariable String id) {
         try {
-            return ResponseEntity.status(OK).body(collectivityDtoMapper.mapToDto(collectivityService.getCollectivityById(id)));
+            return ResponseEntity.status(OK)
+                    .body(collectivityDtoMapper.mapToDto(collectivityService.getCollectivityById(id)));
         } catch (BadRequestException e) {
             return ResponseEntity.status(BAD_REQUEST)
                     .body(e.getMessage());
@@ -143,16 +155,91 @@ public class CollectivityController {
         }
     }
 
+    @GetMapping("/collectivities/{id}/financialAccounts")
+    public ResponseEntity<?> getCollectivityFinancialAccounts(@PathVariable String id,
+                                                              @RequestParam(required = false) LocalDate at) {
+        try {
+            return ResponseEntity.status(OK)
+                    .body(collectivityService.getFinancialAccounts(id).stream()
+                            .map(financialAccount -> financialAccountDtoMapper.mapToDto(financialAccount, at))
+                            .toList());
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/collectivities/{id}/transactions")
+    public ResponseEntity<?> getCollectivityTransactions(@PathVariable String id, @RequestParam LocalDate from, @RequestParam LocalDate to) {
+        try {
+            return ResponseEntity.status(OK)
+                    .body(collectivityService.getTransactionsByCollectivity(id, from, to).stream()
+                            .map(transactionDtoMapper::mapToDto)
+                            .toList());
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/collectivities/{id}/statistics")
+    public ResponseEntity<?> getCollectivityStatisticsById(@PathVariable String id, @RequestParam LocalDate from, @RequestParam LocalDate to) {
+        try {
+            return ResponseEntity.status(OK)
+                    .body(collectivityService.getOverallStatistics(id, from, to).stream()
+                            .map(collectivityLocalStatisticsDtoMapper::mapToDto)
+                            .toList());
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/collectivities/statistics")
+    public ResponseEntity<?> getCollectivitiesOverallStatistics(
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to) {
+        try {
+            return ResponseEntity.status(OK)
+                    .body(collectivityService.getOverallStatistics(from, to).stream()
+                            .map(collectivityOverallStatisticsDtoMapper::mapToDto)
+                            .toList());
+        } catch (Exception e) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
+        }
+    }
+
     @GetMapping("/collectivities/{id}/activities")
     public ResponseEntity<?> getActivities(@PathVariable String id) {
         try {
             List<CreateCollectivityActivityDto> dtos = new ArrayList<>();
             for (Activity a : collectivityService.getActivities(id)) {
-                dtos.add(toDto(a));
+                dtos.add(createCollectivityActivityDtoMapper.mapTo(a));
             }
-            return ResponseEntity.status(OK).body(dtos);
+            return ResponseEntity.status(OK)
+                    .body(dtos);
         } catch (NotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
@@ -195,18 +282,22 @@ public class CollectivityController {
             }
             List<CreateCollectivityActivityDto> result = new ArrayList<>();
             for (Activity a : collectivityService.createActivities(id, activities)) {
-                result.add(toDto(a));
+                result.add(createCollectivityActivityDtoMapper.mapTo(a));
             }
-            return ResponseEntity.status(OK).body(result);
+            return ResponseEntity.status(OK)
+                    .body(result);
         } catch (NotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(e.getMessage());
         } catch (BadRequestException e) {
-            return ResponseEntity.status(BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(BAD_REQUEST)
+                    .body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
         }
     }
+
     @GetMapping("/collectivities/{id}/activities/{activityId}/attendance")
     public ResponseEntity<?> getAttendance(
             @PathVariable String id,
@@ -215,11 +306,13 @@ public class CollectivityController {
             List<ActivityMemberAttendanceDto> dtos = new ArrayList<>();
             for (Attendance a : collectivityService
                     .getAttendance(id, activityId)) {
-                dtos.add(toAttendanceDto(a));
+                dtos.add(activityMemberAttendanceDtoMapper.mapToDto(a));
             }
-            return ResponseEntity.status(OK).body(dtos);
+            return ResponseEntity.status(OK)
+                    .body(dtos);
         } catch (NotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
@@ -246,62 +339,19 @@ public class CollectivityController {
             List<ActivityMemberAttendanceDto> result = new ArrayList<>();
             for (Attendance a : collectivityService
                     .recordAttendance(id, activityId, attendances)) {
-                result.add(toAttendanceDto(a));
+                result.add(activityMemberAttendanceDtoMapper.mapToDto(a));
             }
-            return ResponseEntity.status(CREATED).body(result);
+            return ResponseEntity.status(CREATED)
+                    .body(result);
         } catch (BadRequestException e) {
-            return ResponseEntity.status(BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(BAD_REQUEST)
+                    .body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
         }
-    }
-    // HELPERS :
-
-    private CreateCollectivityActivityDto toDto(Activity a) {
-        CreateCollectivityActivityDto dto = new CreateCollectivityActivityDto();
-        dto.setId(a.getId());
-        dto.setLabel(a.getLabel());
-        dto.setActivityType(a.getActivityType() == null ? null :
-                a.getActivityType().name());
-        dto.setExecutiveDate(a.getExecutiveDate());
-
-        if (a.getRecurrenceRule() != null) {
-            MonthlyRecurrenceRuleDto rDto = new MonthlyRecurrenceRuleDto();
-            rDto.setWeekOrdinal(a.getRecurrenceRule().getWeekOrdinal());
-            rDto.setDayOfWeek(a.getRecurrenceRule().getDayOfWeek());
-            dto.setRecurrenceRule(rDto);
-        }
-
-        if (a.getMemberOccupationConcerned() != null) {
-            List<String> occs = new ArrayList<>();
-            for (MemberOccupation occ : a.getMemberOccupationConcerned()) {
-                occs.add(occ.name());
-            }
-            dto.setMemberOccupationConcerned(occs);
-        }
-
-        return dto;
-    }
-
-    private ActivityMemberAttendanceDto toAttendanceDto(Attendance a) {
-        ActivityMemberAttendanceDto dto = new ActivityMemberAttendanceDto();
-        dto.setId(a.getId());
-        dto.setAttendanceStatus(a.getAttendanceStatus() == null ? null :
-                a.getAttendanceStatus().name());
-
-        if (a.getMember() != null) {
-            MemberDescription desc = new MemberDescription();
-            desc.setId(a.getMember().getId());
-            desc.setFirstName(a.getMember().getFirstName());
-            desc.setLastName(a.getMember().getLastName());
-            desc.setEmail(a.getMember().getEmail());
-            desc.setOccupation(a.getMember().getOccupation() == null ? null :
-                    a.getMember().getOccupation().name());
-            dto.setMemberDescription(desc);
-        }
-        return dto;
     }
 }

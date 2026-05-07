@@ -1,4 +1,4 @@
-package edu.hei.school.agricultural.controller.dto;
+package edu.hei.school.agricultural.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,10 +7,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class MemberDescription {
-
     private String id;
     private String firstName;
     private String lastName;

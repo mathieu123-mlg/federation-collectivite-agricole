@@ -1,13 +1,13 @@
 package edu.hei.school.agricultural.controller.mapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.springframework.stereotype.Component;
-
 import edu.hei.school.agricultural.entity.Attendance;
 import edu.hei.school.agricultural.entity.AttendanceStatus;
 import edu.hei.school.agricultural.repository.MemberRepository;
+import org.springframework.stereotype.Component;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 @Component
 public class AttendanceMapper {
     private final MemberRepository memberRepository;
@@ -23,7 +23,7 @@ public class AttendanceMapper {
         String memberId = rs.getString("member_id");
         if (memberId != null) {
             memberRepository.findById(memberId)
-                .ifPresent(attendance::setMember);
+                    .ifPresent(attendance::setMember);
         }
         String status = rs.getString("attendance_status");
         if (status != null) {
