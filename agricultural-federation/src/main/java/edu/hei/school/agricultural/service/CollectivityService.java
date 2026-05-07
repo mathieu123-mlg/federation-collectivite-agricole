@@ -136,9 +136,11 @@ public class CollectivityService {
 
     public List<CollectivityLocalStatistics> getOverallStatistics(String collectivityId, LocalDate from, LocalDate to) {
         collectivityRepository.findById(collectivityId)
-                .orElseThrow(() ->
-                        new NotFoundException("Collectivity.id={" + collectivityId + ") is not found"));
+                .orElseThrow(() -> new NotFoundException("Collectivity.id={" + collectivityId + ") is not found"));
 
+        if (from.isAfter(to)) {
+            throw new BadRequestException("from is after to");
+        }
         return collectivityStatisticsRepository.getLocalStatistics(collectivityId, from, to);
     }
 }

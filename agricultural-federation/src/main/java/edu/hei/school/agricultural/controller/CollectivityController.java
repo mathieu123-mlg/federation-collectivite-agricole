@@ -3,8 +3,11 @@ package edu.hei.school.agricultural.controller;
 import edu.hei.school.agricultural.controller.dto.CollectivityInformation;
 import edu.hei.school.agricultural.controller.dto.CreateCollectivity;
 import edu.hei.school.agricultural.controller.dto.CreateMembershipFee;
-import edu.hei.school.agricultural.controller.mapper.*;
+import edu.hei.school.agricultural.controller.mapper.CollectivityDtoMapper;
 import edu.hei.school.agricultural.controller.mapper.CollectivityLocalStatisticsDtoMapper;
+import edu.hei.school.agricultural.controller.mapper.FinancialAccountDtoMapper;
+import edu.hei.school.agricultural.controller.mapper.MembershipFeeDtoMapper;
+import edu.hei.school.agricultural.controller.mapper.TransactionDtoMapper;
 import edu.hei.school.agricultural.entity.Collectivity;
 import edu.hei.school.agricultural.entity.MembershipFee;
 import edu.hei.school.agricultural.exception.BadRequestException;
@@ -41,7 +44,7 @@ public class CollectivityController {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
         }
 
@@ -66,7 +69,7 @@ public class CollectivityController {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
         }
     }
@@ -86,7 +89,7 @@ public class CollectivityController {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
         }
     }
@@ -105,7 +108,7 @@ public class CollectivityController {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
         }
     }
@@ -129,7 +132,7 @@ public class CollectivityController {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
         }
     }
@@ -149,7 +152,7 @@ public class CollectivityController {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
         }
     }
@@ -168,7 +171,7 @@ public class CollectivityController {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
         }
     }
@@ -180,8 +183,14 @@ public class CollectivityController {
                     .body(collectivityService.getOverallStatistics(id, from, to).stream()
                             .map(collectivityLocalStatisticsDtoMapper::mapToDto)
                             .toList());
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
         }
     }
