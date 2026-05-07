@@ -22,8 +22,7 @@ public class ActivityRepository {
 private final Connection connection;
     private final ActivityMapper activityMapper;
 
-    public ActivityRepository(Connection connection,
-                              ActivityMapper activityMapper) {
+    public ActivityRepository(Connection connection, ActivityMapper activityMapper) {
         this.connection = connection;
         this.activityMapper = activityMapper;
     }
