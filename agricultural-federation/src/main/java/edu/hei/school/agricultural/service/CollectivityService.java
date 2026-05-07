@@ -101,7 +101,7 @@ public class CollectivityService {
                 .orElseThrow(() -> new NotFoundException("Collectivity.id=" + collectivityId + " not found"));
 
         for (Activity a : activities) {
-            if (a.getRecurrenceRule() != null && a.getExecutiveDate() != null) {
+            if (a.getRecurrenceRule() == null || a.getExecutiveDate() == null) {
                 throw new BadRequestException("Cannot provide both recurrenceRule and executiveDate.");
             }
             a.setCollectivityId(collectivityId);

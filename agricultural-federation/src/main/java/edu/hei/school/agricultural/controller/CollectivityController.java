@@ -250,25 +250,22 @@ public class CollectivityController {
     @PostMapping("/collectivities/{id}/activities")
     public ResponseEntity<?> createActivities(
             @PathVariable String id,
-            @RequestBody List<CreateCollectivityActivityDto> dtos) {
+            @RequestBody List<CreateCollectivityActivityDto> createCollectivityActivity) {
         try {
             List<Activity> activities = new ArrayList<>();
-            for (CreateCollectivityActivityDto dto : dtos) {
+            for (CreateCollectivityActivityDto dto : createCollectivityActivity) {
                 Activity a = new Activity();
                 a.setLabel(dto.getLabel());
                 if (dto.getActivityType() != null) {
-                    a.setActivityType(
-                            ActivityType.valueOf(dto.getActivityType()));
+                    a.setActivityType(ActivityType.valueOf(dto.getActivityType()));
                 }
                 if (dto.getExecutiveDate() != null) {
                     a.setExecutiveDate(dto.getExecutiveDate());
                 }
                 if (dto.getRecurrenceRule() != null) {
                     MonthlyRecurrenceRule rule = new MonthlyRecurrenceRule();
-                    rule.setWeekOrdinal(
-                            dto.getRecurrenceRule().getWeekOrdinal());
-                    rule.setDayOfWeek(
-                            dto.getRecurrenceRule().getDayOfWeek());
+                    rule.setWeekOrdinal(dto.getRecurrenceRule().getWeekOrdinal());
+                    rule.setDayOfWeek(dto.getRecurrenceRule().getDayOfWeek());
                     a.setRecurrenceRule(rule);
                 }
                 if (dto.getMemberOccupationConcerned() != null) {
@@ -323,21 +320,19 @@ public class CollectivityController {
     public ResponseEntity<?> recordAttendance(
             @PathVariable String id,
             @PathVariable String activityId,
-            @RequestBody List<CreateActivityMemberAttendanceDto> dtos) {
+            @RequestBody List<CreateActivityMemberAttendanceDto> createActivityMemberAttendance) {
         try {
             List<Attendance> attendances = new ArrayList<>();
-            for (CreateActivityMemberAttendanceDto dto : dtos) {
+            for (CreateActivityMemberAttendanceDto dto : createActivityMemberAttendance) {
                 var member = memberRepository.findById(dto.getMemberIdentifier())
                         .orElseThrow(() -> new NotFoundException("Member.id=" + dto.getMemberIdentifier() + " not found"));
                 Attendance a = new Attendance();
                 a.setMember(member);
-                a.setAttendanceStatus(
-                        AttendanceStatus.valueOf(dto.getAttendanceStatus()));
+                a.setAttendanceStatus(AttendanceStatus.valueOf(dto.getAttendanceStatus()));
                 attendances.add(a);
             }
             List<ActivityMemberAttendanceDto> result = new ArrayList<>();
-            for (Attendance a : collectivityService
-                    .recordAttendance(id, activityId, attendances)) {
+            for (Attendance a : collectivityService.recordAttendance(id, activityId, attendances)) {
                 result.add(activityMemberAttendanceDtoMapper.mapToDto(a));
             }
             return ResponseEntity.status(CREATED)
