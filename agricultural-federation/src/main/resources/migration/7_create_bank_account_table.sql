@@ -27,3 +27,7 @@ create table if not exists "bank_account"
     key             integer,
     collectivity_id varchar references "collectivity" (id)
 );
+
+alter table bank_account alter column bank_code type varchar;
+alter table bank_account alter column branch_code type varchar;
+alter table bank_account alter column account_number type varchar;

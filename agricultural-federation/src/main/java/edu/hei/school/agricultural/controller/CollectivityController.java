@@ -3,10 +3,8 @@ package edu.hei.school.agricultural.controller;
 import edu.hei.school.agricultural.controller.dto.CollectivityInformation;
 import edu.hei.school.agricultural.controller.dto.CreateCollectivity;
 import edu.hei.school.agricultural.controller.dto.CreateMembershipFee;
-import edu.hei.school.agricultural.controller.mapper.CollectivityDtoMapper;
-import edu.hei.school.agricultural.controller.mapper.FinancialAccountDtoMapper;
-import edu.hei.school.agricultural.controller.mapper.MembershipFeeDtoMapper;
-import edu.hei.school.agricultural.controller.mapper.TransactionDtoMapper;
+import edu.hei.school.agricultural.controller.mapper.*;
+import edu.hei.school.agricultural.controller.mapper.CollectivityLocalStatisticsDtoMapper;
 import edu.hei.school.agricultural.entity.Collectivity;
 import edu.hei.school.agricultural.entity.MembershipFee;
 import edu.hei.school.agricultural.exception.BadRequestException;
@@ -30,6 +28,7 @@ public class CollectivityController {
     private final CollectivityService collectivityService;
     private final FinancialAccountDtoMapper financialAccountDtoMapper;
     private final TransactionDtoMapper transactionDtoMapper;
+    private final CollectivityLocalStatisticsDtoMapper collectivityLocalStatisticsDtoMapper;
 
     @GetMapping("/collectivities/{id}")
     public ResponseEntity<?> getCollectivityById(@PathVariable String id) {
@@ -168,6 +167,19 @@ public class CollectivityController {
         } catch (NotFoundException e) {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/collectivities/{id}/statistics")
+    public ResponseEntity<?> getCollectivityStatisticsById(@PathVariable String id, @RequestParam LocalDate from, @RequestParam LocalDate to) {
+        try {
+            return ResponseEntity.status(OK)
+                    .body(collectivityService.getOverallStatistics(id, from, to).stream()
+                            .map(collectivityLocalStatisticsDtoMapper::mapToDto)
+                            .toList());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());

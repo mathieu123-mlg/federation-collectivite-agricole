@@ -1,15 +1,18 @@
 package edu.hei.school.agricultural.service;
 
+import edu.hei.school.agricultural.entity.CollectivityLocalStatistics;
 import edu.hei.school.agricultural.entity.*;
 import edu.hei.school.agricultural.exception.BadRequestException;
 import edu.hei.school.agricultural.exception.NotFoundException;
 import edu.hei.school.agricultural.repository.CollectivityRepository;
+import edu.hei.school.agricultural.repository.CollectivityStatisticsRepository;
 import edu.hei.school.agricultural.repository.FinancialAccountRepository;
 import edu.hei.school.agricultural.repository.MembershipFeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -23,6 +26,7 @@ public class CollectivityService {
     private final CollectivityRepository collectivityRepository;
     private final MembershipFeeRepository membershipFeeRepository;
     private final FinancialAccountRepository financialAccountRepository;
+    private final CollectivityStatisticsRepository collectivityStatisticsRepository;
 
     public List<Collectivity> createCollectivities(List<Collectivity> collectivities) {
         for (Collectivity collectivity : collectivities) {
@@ -128,5 +132,13 @@ public class CollectivityService {
                     throw new IllegalArgumentException("Unknown financial account type " + financialAccount.getClass().getTypeName());
         };
         return paymentMode;
+    }
+
+    public List<CollectivityLocalStatistics> getOverallStatistics(String collectivityId, LocalDate from, LocalDate to) {
+        collectivityRepository.findById(collectivityId)
+                .orElseThrow(() ->
+                        new NotFoundException("Collectivity.id={" + collectivityId + ") is not found"));
+
+        return collectivityStatisticsRepository.getLocalStatistics(collectivityId, from, to);
     }
 }
