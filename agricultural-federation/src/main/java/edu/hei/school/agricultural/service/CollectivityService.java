@@ -1,7 +1,15 @@
 package edu.hei.school.agricultural.service;
 
+import edu.hei.school.agricultural.entity.BankAccount;
+import edu.hei.school.agricultural.entity.CashAccount;
+import edu.hei.school.agricultural.entity.Collectivity;
 import edu.hei.school.agricultural.entity.CollectivityLocalStatistics;
-import edu.hei.school.agricultural.entity.*;
+import edu.hei.school.agricultural.entity.CollectivityOverallStatistics;
+import edu.hei.school.agricultural.entity.CollectivityTransaction;
+import edu.hei.school.agricultural.entity.FinancialAccount;
+import edu.hei.school.agricultural.entity.MembershipFee;
+import edu.hei.school.agricultural.entity.MobileBankingAccount;
+import edu.hei.school.agricultural.entity.PaymentMode;
 import edu.hei.school.agricultural.exception.BadRequestException;
 import edu.hei.school.agricultural.exception.NotFoundException;
 import edu.hei.school.agricultural.repository.CollectivityRepository;
@@ -12,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -142,5 +149,12 @@ public class CollectivityService {
             throw new BadRequestException("from is after to");
         }
         return collectivityStatisticsRepository.getLocalStatistics(collectivityId, from, to);
+    }
+
+    public List<CollectivityOverallStatistics> getOverallStatistics(LocalDate from, LocalDate to) {
+        if (from.isAfter(to)) {
+            throw new BadRequestException("from is after to");
+        }
+        return collectivityStatisticsRepository.getOverallStatistics(from, to);
     }
 }
