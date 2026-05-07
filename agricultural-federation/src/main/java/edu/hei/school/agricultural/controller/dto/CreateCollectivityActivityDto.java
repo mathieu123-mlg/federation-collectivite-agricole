@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class CreateCollectivityActivityDto {
+    private String id;
     private String label;
     private String activityType;
     private List<String> memberOccupationConcerned;
@@ -50,5 +51,13 @@ public class CreateCollectivityActivityDto {
 
     public void setExecutiveDate(LocalDate executiveDate) {
         this.executiveDate = executiveDate;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
