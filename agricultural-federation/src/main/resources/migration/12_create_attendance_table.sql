@@ -18,3 +18,5 @@ create table if not exists "attendance"
     attendance_status attendance_status default 'UNDEFINED',
     unique (activity_id, member_id)
 );
+
+alter type attendance_status rename value 'ATTENDED' to 'PRESENT';

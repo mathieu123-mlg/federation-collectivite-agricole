@@ -304,8 +304,7 @@ public class CollectivityController {
             @PathVariable String activityId) {
         try {
             List<ActivityMemberAttendanceDto> dtos = new ArrayList<>();
-            for (Attendance a : collectivityService
-                    .getAttendance(id, activityId)) {
+            for (Attendance a : collectivityService.getAttendance(id, activityId)) {
                 dtos.add(activityMemberAttendanceDtoMapper.mapToDto(a));
             }
             return ResponseEntity.status(OK)

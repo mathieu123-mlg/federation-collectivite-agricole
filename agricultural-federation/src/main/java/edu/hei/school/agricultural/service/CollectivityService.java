@@ -109,8 +109,7 @@ public class CollectivityService {
         return activityRepository.saveAll(activities);
     }
 
-    public List<Attendance> getAttendance(String collectivityId,
-                                          String activityId) {
+    public List<Attendance> getAttendance(String collectivityId, String activityId) {
         collectivityRepository.findById(collectivityId)
                 .orElseThrow(() -> new NotFoundException("Collectivity.id=" + collectivityId + " not found"));
         activityRepository.findById(activityId)
@@ -120,8 +119,7 @@ public class CollectivityService {
 
     public List<FinancialAccount> getFinancialAccounts(String collectivityIdentifier) {
         Collectivity collectivity = collectivityRepository.findById(collectivityIdentifier)
-                .orElseThrow(() ->
-                        new NotFoundException("Collectivity.id= " + collectivityIdentifier + " not found"));
+                .orElseThrow(() -> new NotFoundException("Collectivity.id= " + collectivityIdentifier + " not found"));
 
         CashAccount cashAccount = financialAccountRepository.getCashAccountByCollectivityId(collectivity.getId());
         List<BankAccount> bankAccounts = financialAccountRepository.getBankAccountsByCollectivityId(collectivity.getId());
