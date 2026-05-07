@@ -74,25 +74,16 @@ public class CollectivityStatisticsRepository {
         String sql = """
                 select c.name, c.number,
                        count(distinct case when cm.join_date BETWEEN ? and ? then cm.member_id end) as new_members_number,
-                       COALESCE(
-                           cast(count(distinct case
-                               when not exists (
-                                   select 1 from membership_fee mf
-                                   where mf.collectivity_id = c.id and mf.status = 'ACTIVE'
-                                     and mf.eligible_from <= ?
-                                     and not exists (
-                                         select 1 from member_payment mp
-                                         where mp.member_debited_id = cm.member_id
-                                           and mp.membership_fee_id = mf.id
-                                           and mp.creation_date BETWEEN ? and ?
-                                     )
-                               ) then cm.member_id end) as float)
-                           / nullif(count(distinct cm.member_id), 0) * 100
-                       , 0) as overall_member_current_due_percentage
+                       COALESCE(count(distinct case when not exists (
+                               select 1 from membership_fee mf
+                               where mf.collectivity_id = c.id and mf.status = 'ACTIVE' and mf.eligible_from <= ?
+                               and COALESCE((select SUM(mp.amount) from member_payment mp
+                                   where mp.member_debited_id = cm.member_id and mp.membership_fee_id = mf.id
+                                   and mp.creation_date BETWEEN ? and ?), 0) < mf.amount
+                           ) then cm.member_id end)::numeric * 100 / nullif(count(distinct cm.member_id), 0), 0) as overall_member_current_due_percentage
                 from collectivity c
                 join collectivity_member cm on cm.collectivity_id = c.id
-                group by c.id, c.name, c.number
-                order by c.number
+                group by c.id, c.name, c.number order by c.number
                 """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setDate(1, Date.valueOf(from));
