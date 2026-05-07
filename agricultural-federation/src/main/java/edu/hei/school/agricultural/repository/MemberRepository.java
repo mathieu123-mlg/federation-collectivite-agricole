@@ -26,7 +26,7 @@ public class MemberRepository {
         List<Member> memberList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(
                 """
-                        insert into "member" (id, 
+                        insert into member (id, 
                                               first_name,
                                               last_name,
                                               birth_date,
@@ -97,7 +97,7 @@ public class MemberRepository {
     public Optional<Member> findById(String id) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("""
                 select member.id, first_name, last_name, birth_date, gender, phone_number, email, address, profession, occupation,registration_fee_paid, membership_dues_paid
-                from "member"
+                from member
                 where id = ?
                 """)) {
             preparedStatement.setString(1, id);
@@ -117,7 +117,7 @@ public class MemberRepository {
         List<Member> memberList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement("""
                 select member.id, first_name, last_name, birth_date, gender, phone_number, email, address, profession, occupation,registration_fee_paid, membership_dues_paid
-                from "member"
+                from member
                     join collectivity_member on member.id = collectivity_member.member_id
                     join collectivity on collectivity.id = collectivity_member.collectivity_id
                 where collectivity_member.collectivity_id = ?
@@ -140,7 +140,7 @@ public class MemberRepository {
         List<Member> memberList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement("""
                 select member.id, first_name, last_name, birth_date, gender, phone_number, email, address, profession, occupation,registration_fee_paid, membership_dues_paid
-                from "member"
+                from member
                     join member_referee on member.id = member_referee.member_referee_id
                 where member_referee.member_refereed_id = ?
                 """)) {
